@@ -428,7 +428,7 @@
 </div>
 
 <button class="chat-fab" id="chatFab" aria-controls="chatPanel" aria-expanded="false" data-i18n-aria="nav.ask" data-i18n-title="nav.ask">
-  <svg class="fab-open" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20.5l1.4-5A8 8 0 1 1 21 12z"/><path d="M9.5 9.5a2.5 2.5 0 0 1 4.9.7c0 1.6-2.4 2.3-2.4 2.3M12 15.5h.01"/></svg>
+  <svg class="fab-open" viewBox="0 0 24 24" aria-hidden="true"><g transform="translate(0 0.9)"><path d="M6.5 3h11A2.5 2.5 0 0 1 20 5.5v8a2.5 2.5 0 0 1-2.5 2.5H11l-4 3.5V16H6.5A2.5 2.5 0 0 1 4 13.5v-8A2.5 2.5 0 0 1 6.5 3z"/><path d="M10.1 7.7a2 2 0 0 1 3.85.55c0 1.25-1.95 1.6-1.95 2.6" stroke-width="1.8"/><circle cx="12" cy="13" r=".55" fill="currentColor" stroke-width="1"/></g></svg>
   <svg class="fab-close" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
 </button>
 
