@@ -236,7 +236,7 @@ ul { list-style: none; margin: 0; padding: 0; }
 .modal-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; padding: 20px 24px; border-bottom: 1px solid var(--border); }
 .modal-head h2 { font-size: 18px; }
 .modal-head .muted { margin-top: 4px; }
-.modal-body { padding: 20px 24px; overflow-y: auto; }
+.modal-body { flex: 1; min-height: 0; overscroll-behavior: contain; padding: 20px 24px; overflow-y: auto; }
 .modal-foot { display: flex; justify-content: flex-end; gap: 10px; padding: 16px 24px; border-top: 1px solid var(--border); }
 
 .report-grid { display: grid; grid-template-columns: 1fr 280px; gap: 22px; }
@@ -269,9 +269,9 @@ ul { list-style: none; margin: 0; padding: 0; }
 
 /* ---------- Drawer ---------- */
 .drawer { place-items: stretch end; padding: 0; }
-.drawer-box { background: #fff; width: 100%; max-width: 480px; height: 100%; display: flex; flex-direction: column; animation: slide .2s ease; }
+.drawer-box { background: #fff; width: 100%; max-width: 480px; height: 100vh; height: 100dvh; min-height: 0; display: flex; flex-direction: column; animation: slide .2s ease; }
 @keyframes slide { from { transform: translateX(30px); opacity: 0; } }
-.drawer-body { padding: 22px 24px; overflow-y: auto; display: flex; flex-direction: column; gap: 20px; }
+.drawer-body { flex: 1; min-height: 0; overscroll-behavior: contain; padding: 22px 24px; overflow-y: auto; display: flex; flex-direction: column; gap: 20px; }
 .drawer-top { display: flex; align-items: center; gap: 16px; }
 .drawer-top .gauge { width: 92px; height: 92px; }
 .drawer-top .gauge span { font-size: 24px; }
@@ -395,3 +395,6 @@ ul { list-style: none; margin: 0; padding: 0; }
 
 .spark-lg { height: 56px; }
 .spark-lg svg { width: 100%; height: 100%; stroke: none; }
+
+/* stop the page behind from scrolling while a panel is open */
+body:has(.drawer:not([hidden]), .modal:not([hidden])) { overflow: hidden; }
