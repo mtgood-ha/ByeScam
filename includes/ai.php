@@ -44,33 +44,45 @@ function bs_ai_prompt(array $trend, array $members): string {
         . "- ms = Bahasa Malaysia, zh = Simplified Chinese. Keep brand names and RM amounts unchanged.";
 }
 
-function bs_ai_call(string $prompt): ?array {
+function bs_ai_chat(array $messages, string $system = '', int $maxTokens = 900): array {
     $cfg = bs_config();
-    $payload = json_encode([
-        'model' => $cfg['anthropic_model'],
-        'max_tokens' => 900,
-        'messages' => [['role' => 'user', 'content' => $prompt]],
-    ]);
+    $body = ['model' => $cfg['anthropic_model'], 'max_tokens' => $maxTokens, 'messages' => $messages];
+    if ($system !== '') $body['system'] = $system;
+    $payload = json_encode($body);
     $headers = ['content-type: application/json', 'x-api-key: ' . $cfg['anthropic_api_key'], 'anthropic-version: 2023-06-01'];
 
     if (function_exists('curl_init')) {
         $ch = curl_init('https://api.anthropic.com/v1/messages');
         curl_setopt_array($ch, [CURLOPT_POST => true, CURLOPT_POSTFIELDS => $payload, CURLOPT_HTTPHEADER => $headers,
                                 CURLOPT_RETURNTRANSFER => true, CURLOPT_TIMEOUT => 25]);
-        $body = curl_exec($ch);
+        $raw = curl_exec($ch);
         $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
     } else {
         $ctx = stream_context_create(['http' => ['method' => 'POST', 'header' => implode("\r\n", $headers), 'content' => $payload, 'timeout' => 25, 'ignore_errors' => true]]);
-        $body = @file_get_contents('https://api.anthropic.com/v1/messages', false, $ctx);
+        $raw = @file_get_contents('https://api.anthropic.com/v1/messages', false, $ctx);
         $code = 0;
         if (isset($http_response_header[0]) && preg_match('/\s(\d{3})\s/', $http_response_header[0], $m)) $code = (int)$m[1];
     }
-    if (!$body || $code !== 200) return ['error' => 'AI request failed (HTTP ' . $code . ')'];
-    $resp = json_decode($body, true);
+    if (!$raw || $code !== 200) return ['error' => 'AI request failed (HTTP ' . $code . ')'];
+    $resp = json_decode($raw, true);
     $text = '';
     foreach ($resp['content'] ?? [] as $c) if (($c['type'] ?? '') === 'text') $text .= $c['text'];
-    return bs_ai_parse($text);
+    return ['text' => $text];
+}
+
+function bs_ai_json(string $text): ?array {
+    $start = strpos($text, '{');
+    $end = strrpos($text, '}');
+    if ($start === false || $end === false) return null;
+    $j = json_decode(substr($text, $start, $end - $start + 1), true);
+    return is_array($j) ? $j : null;
+}
+
+function bs_ai_call(string $prompt): ?array {
+    $r = bs_ai_chat([['role' => 'user', 'content' => $prompt]]);
+    if (isset($r['error'])) return $r;
+    return bs_ai_parse($r['text']);
 }
 
 function bs_ai_parse(string $text): ?array {

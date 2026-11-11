@@ -4,6 +4,7 @@
   const API = 'api/reports.php';
   const NET_API = 'api/network.php';
   const VERIFY_API = 'api/verify.php';
+  const ASK_API = 'api/ask.php';
   const AI_API = 'api/ai.php';
   const POLL_MS = 20000;
   const NET_POLL_MS = 15000;
@@ -144,7 +145,7 @@
     $$('[data-i18n-title]').forEach((el) => { el.title = t(el.dataset.i18nTitle); });
     $$('[data-i18n-aria]').forEach((el) => { el.setAttribute('aria-label', t(el.dataset.i18nAria)); });
     $$('[data-i18n-alt]').forEach((el) => { el.alt = t(el.dataset.i18nAlt); });
-    const vt = { overview: 'ov.title', map: 'mp.title', network: 'nw.title', verify: 'vf.title' }[ui.view];
+    const vt = { overview: 'ov.title', ask: 'ask.title', map: 'mp.title', network: 'nw.title', verify: 'vf.title' }[ui.view];
     document.title = `${t(vt)} · ByeScam`;
     renderLocationOptions();
   }
@@ -178,7 +179,7 @@
   }
 
   function setView(view, focus) {
-    if (!['overview', 'map', 'network', 'verify'].includes(view)) view = 'overview';
+    if (!['overview', 'ask', 'map', 'network', 'verify'].includes(view)) view = 'overview';
     ui.view = view;
     $$('[data-view]').forEach((s) => (s.hidden = s.dataset.view !== view));
     $$('[data-view-link]').forEach((a) => {
@@ -245,6 +246,7 @@
     else if (ui.view === 'map') renderMap();
     else if (ui.view === 'network') renderNetwork();
     else if (ui.view === 'verify') renderDirectory();
+    else if (ui.view === 'ask') renderAsk();
   }
 
   function renderOverview(fresh = []) {
@@ -864,10 +866,154 @@
       + `<div class="tip"><div class="report-ico" style="--c:var(--primary)" aria-hidden="true">${ICON.flag}</div><div><h3>${esc(t('tips.paid'))}</h3><ul>${t('tips.paidList').map((a) => `<li>${a}</li>`).join('')}</ul></div></div>`;
   }
 
+
+  const ask = { started: false, topic: '', story: '', answers: {}, messages: [], log: [], quick: null, busy: false, done: false, mode: null };
+
+  function askReset() {
+    Object.assign(ask, { started: true, topic: '', story: '', answers: {}, messages: [], log: [], quick: null, busy: false, done: false });
+    ask.log.push({ who: 'bot', key: 'ask.hello' });
+    ask.quick = { kind: 'topic', options: ['internship', 'rental', 'phishing', 'other'] };
+    renderAsk();
+  }
+
+  function botText(m) {
+    if (m.key) return t(m.key, m.vars);
+    return m.text || '';
+  }
+
+  function verdictHtml(v, res) {
+    const lvlClass = { scam: 'bad', suspicious: 'warn', safe: 'ok' }[v.level] || 'warn';
+    const color = { scam: 'var(--high)', suspicious: 'var(--medium)', safe: 'var(--low)' }[v.level];
+    const icon = v.level === 'safe' ? ICON.shieldOk : v.level === 'scam' ? ICON.shieldX : ICON.warn;
+    const tr = res.trend && data.trends.find((x) => x.id === res.trend.id);
+    const reasons = (v.reasons || []).map((r) => {
+      if (r.type === 'text') return esc(r.text);
+      if (r.type === 'flag') return esc(flagText(r.label));
+      if (r.type === 'answer') return esc(t('r.' + r.key));
+      if (r.type === 'unsure') return esc(t('r.unsure', { q: t('q.' + r.key) }));
+      if (r.type === 'trend' && res.trend) return esc(t('r.trend', { n: nReports(res.trend.count), title: tr ? trendTitle(tr) : res.trend.title }));
+      return '';
+    }).filter(Boolean);
+    const steps = v.steps && v.steps.length ? v.steps : t('adv.' + (CAT[v.category] ? v.category : 'other'));
+    const domain = res.analysis && res.analysis.domain;
+    return `
+      <div class="verdict ${lvlClass}">
+        <div class="verdict-top">
+          <span class="vres-ico" aria-hidden="true">${icon}</span>
+          <div class="verdict-head"><b>${esc(v.title || t('vd.' + v.level + '.title'))}</b><p>${esc(v.summary || t('vd.' + v.level + '.text'))}</p></div>
+          <div class="gauge sm" style="--p:${v.score};--gc:${color}" title="${esc(t('vd.score'))}"><span>${v.score}</span><small>%</small></div>
+        </div>
+        ${reasons.length ? `<p class="section-label">${esc(t('vd.why'))}</p><ul class="reason-list">${reasons.map((r) => `<li>${ICON.flag}<span>${r}</span></li>`).join('')}</ul>` : ''}
+        <p class="section-label">${esc(t('vd.next'))}</p>
+        <ul class="step-list">${steps.map((x) => `<li>${ICON.check}<span>${esc(x)}</span></li>`).join('')}</ul>
+        ${v.level !== 'safe' ? `<p class="paid-line">${ICON.phone}<span>${esc(t('vd.paid'))}</span></p>` : ''}
+        <div class="verdict-actions">
+          ${v.level !== 'safe' ? `<button class="btn btn-primary btn-sm" data-ask-action="report">${esc(t('vd.report'))}</button>` : ''}
+          ${domain ? `<button class="btn btn-ghost btn-sm" data-ask-action="verify" data-domain="${esc(domain)}">${esc(t('vd.check'))}</button>` : ''}
+          ${tr ? `<button class="btn btn-ghost btn-sm" data-trend="${tr.id}">${ICON.layers} ${esc(t('vd.trend'))}</button>` : ''}
+        </div>
+      </div>`;
+  }
+
+  function renderAsk() {
+    if (!ask.started) askReset();
+    const modeEl = $('#askMode');
+    const aiOn = ask.mode ? ask.mode === 'ai' : !!(data.stats && data.stats.ai_enabled);
+    modeEl.innerHTML = aiOn ? `${ICON.spark}${esc(t('ask.modeAi'))}` : esc(t('ask.modeRules'));
+    modeEl.className = 'mode-badge ' + (aiOn ? 'ai' : '');
+    const log = $('#chatLog');
+    log.innerHTML = ask.log.map((m) => {
+      if (m.who === 'user') return `<div class="msg user"><div class="bubble">${esc(m.labelKey ? t(m.labelKey) : m.text)}</div></div>`;
+      if (m.verdict) return `<div class="msg bot wide">${verdictHtml(m.verdict, m.res)}</div>`;
+      return `<div class="msg bot"><div class="bubble">${m.step ? `<small class="q-step">${esc(t('ask.step', { n: m.step, t: m.total }))}</small>` : ''}${esc(botText(m))}</div></div>`;
+    }).join('') + (ask.busy ? '<div class="msg bot"><div class="bubble typing" aria-label="…"><i></i><i></i><i></i></div></div>' : '');
+    const q = $('#chatQuick');
+    if (ask.busy || !ask.quick) q.innerHTML = '';
+    else if (ask.quick.kind === 'topic') q.innerHTML = ask.quick.options.map((o) => `<button class="chip" data-ask-topic="${o}">${o !== 'other' ? `<i class="dot ${o}"></i>` : ''}${esc(t('ask.topic.' + o))}</button>`).join('');
+    else if (ask.quick.kind === 'answer') q.innerHTML = ['yes', 'no', 'unsure'].map((o) => `<button class="chip" data-ask-answer="${o}">${esc(t('ans.' + o))}</button>`).join('');
+    else if (ask.quick.kind === 'options') q.innerHTML = ask.quick.options.map((o, i) => `<button class="chip" data-ask-option="${i}">${esc(o)}</button>`).join('');
+    else if (ask.quick.kind === 'done') q.innerHTML = `<button class="chip" data-ask-action="restart">${esc(t('ask.restart'))}</button>`;
+    $('#chatInput').disabled = ask.busy;
+    const last = log.lastElementChild;
+    log.scrollTop = last && last.classList.contains('wide') ? last.offsetTop - 12 : log.scrollHeight;
+  }
+
+  async function askSend() {
+    ask.busy = true; ask.quick = null; renderAsk();
+    try {
+      const res = await api(ASK_API, { method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ lang: settings.lang, topic: ask.topic, story: ask.story, answers: ask.answers, messages: ask.messages }) });
+      ask.mode = res.mode;
+      if (res.type === 'more') {
+        ask.log.push({ who: 'bot', key: 'ask.more' });
+      } else if (res.type === 'question') {
+        if (res.mode === 'ai') {
+          ask.log.push({ who: 'bot', text: res.question.text });
+          ask.messages.push({ role: 'assistant', content: JSON.stringify({ type: 'question', text: res.question.text, options: res.question.options }) });
+          ask.quick = res.question.options.length ? { kind: 'options', options: res.question.options } : null;
+        } else {
+          ask.log.push({ who: 'bot', key: 'q.' + res.question.key, step: res.step, total: res.total });
+          ask.messages.push({ role: 'assistant', content: t('q.' + res.question.key) });
+          ask.pending = res.question.key;
+          ask.quick = { kind: 'answer' };
+        }
+      } else if (res.type === 'verdict') {
+        ask.log.push({ who: 'bot', verdict: res.verdict, res });
+        ask.done = true;
+        ask.quick = { kind: 'done' };
+      }
+    } catch (e) {
+      ask.log.push({ who: 'bot', key: 'ask.error' });
+    } finally {
+      ask.busy = false; renderAsk();
+      if (!ask.done) $('#chatInput').focus();
+    }
+  }
+
+  function askUserText(text) {
+    text = text.trim();
+    if (!text || ask.busy) return;
+    if (ask.done) askReset();
+    ask.log.push({ who: 'user', text });
+    ask.messages.push({ role: 'user', content: text });
+    if (ask.pending) {
+      const v = /^(y|ya|yes|是|ye)/i.test(text) ? 'yes' : /^(n|no|tidak|tak|否|不)/i.test(text) ? 'no' : null;
+      if (v) ask.answers[ask.pending] = v; else ask.story += '\n' + text;
+      ask.pending = null;
+    } else {
+      ask.story = ask.story ? ask.story + '\n' + text : text;
+    }
+    askSend();
+  }
+
   document.addEventListener('click', (e) => {
-    const el = e.target.closest('[data-trend],[data-report],[data-open-report],[data-close],[data-got-this],[data-filter-trend],[data-back],[data-soon],[data-zone],[data-zone-back],[data-open-settings],[data-example]');
+    const el = e.target.closest('[data-trend],[data-report],[data-open-report],[data-close],[data-got-this],[data-filter-trend],[data-back],[data-soon],[data-zone],[data-zone-back],[data-open-settings],[data-example],[data-ask-topic],[data-ask-answer],[data-ask-option],[data-ask-action]');
     if (!el) {
       if (e.target.classList.contains('modal') || e.target.classList.contains('drawer')) closeAll();
+      return;
+    }
+    if (el.dataset.askTopic) {
+      ask.topic = el.dataset.askTopic;
+      ask.log.push({ who: 'user', labelKey: 'ask.topic.' + ask.topic });
+      ask.log.push({ who: 'bot', key: 'ask.describe' });
+      ask.quick = null; renderAsk(); $('#chatInput').focus();
+      return;
+    }
+    if (el.dataset.askAnswer) {
+      const v = el.dataset.askAnswer;
+      if (ask.pending) ask.answers[ask.pending] = v;
+      ask.pending = null;
+      ask.log.push({ who: 'user', labelKey: 'ans.' + v });
+      ask.messages.push({ role: 'user', content: t('ans.' + v) });
+      askSend();
+      return;
+    }
+    if (el.dataset.askOption) { askUserText(ask.quick.options[+el.dataset.askOption]); return; }
+    if (el.dataset.askAction) {
+      const a = el.dataset.askAction;
+      if (a === 'restart') askReset();
+      if (a === 'report') openReportForm({ message: ask.story.trim() });
+      if (a === 'verify') { location.hash = 'verify'; setTimeout(() => { $('#verifyInput').value = el.dataset.domain; runVerify(el.dataset.domain); }, 60); }
       return;
     }
     if (el.dataset.soon) { e.preventDefault(); toast(`<span>${t('toast.soon', { name: esc(t('nav.' + el.dataset.soon)) })}</span>`); return; }
@@ -922,6 +1068,9 @@
   });
   $('#moreTrends').addEventListener('click', () => { ui.allTrends = true; renderTrends(); });
   $('#mapLayer').addEventListener('click', (e) => { const b = e.target.closest('button'); if (!b) return; ui.mapLayer = b.dataset.layer; renderMap(); });
+  $('#chatForm').addEventListener('submit', (e) => { e.preventDefault(); const i = $('#chatInput'); askUserText(i.value); i.value = ''; });
+  $('#chatInput').addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); $('#chatForm').requestSubmit(); } });
+  $('#askRestart').addEventListener('click', askReset);
   $('#verifyForm').addEventListener('submit', (e) => { e.preventDefault(); runVerify($('#verifyInput').value); });
 
   $('#reportForm').addEventListener('input', preview);

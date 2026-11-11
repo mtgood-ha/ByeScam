@@ -24,6 +24,10 @@
         <span class="nav-text" data-i18n="nav.overview">Overview</span>
         <span class="live-dot" aria-hidden="true"></span>
       </a>
+      <a class="nav-item" href="#ask" data-view-link="ask" data-i18n-title="nav.ask">
+        <svg viewBox="0 0 24 24"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20.5l1.4-5A8 8 0 1 1 21 12z"/><path d="M9.5 9.5a2.5 2.5 0 0 1 4.9.7c0 1.6-2.4 2.3-2.4 2.3M12 15.5h.01"/></svg>
+        <span class="nav-text" data-i18n="nav.ask">Ask before you pay</span>
+      </a>
       <a class="nav-item" href="#map" data-view-link="map" data-i18n-title="nav.map">
         <svg viewBox="0 0 24 24"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2z"/><path d="M9 4v14M15 6v14"/></svg>
         <span class="nav-text" data-i18n="nav.map">Campus heatmap</span>
@@ -296,6 +300,43 @@
         <section class="card">
           <div class="card-head"><div><h2 data-i18n="vf.dir">Official directory</h2><p class="muted" data-i18n="vf.dirSub">Real websites and email domains. Anything else claiming to be them is fake.</p></div></div>
           <div class="directory" id="directory"></div>
+        </section>
+      </section>
+
+      <section class="view" data-view="ask" aria-labelledby="h-ask" hidden>
+        <div class="page-head">
+          <div>
+            <h1 id="h-ask" data-i18n="ask.title">Ask before you pay</h1>
+            <p class="muted" data-i18n="ask.sub">About to pay a deposit, a "training fee" or log in somewhere? Describe the situation and ByeScam will ask a few questions and tell you if it looks like a scam.</p>
+          </div>
+        </div>
+        <section class="ask-layout">
+          <div class="card chat-card">
+            <div class="chat-head">
+              <span class="bot-avatar" aria-hidden="true"><img src="assets/img/logo.svg" alt="" width="36" height="36"></span>
+              <div><b data-i18n="ask.name">ByeScam assistant</b><span class="mode-badge" id="askMode"></span></div>
+              <button class="btn btn-ghost btn-sm" id="askRestart"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg><span data-i18n="ask.restart">Start over</span></button>
+            </div>
+            <div class="chat-log" id="chatLog" role="log" aria-live="polite"></div>
+            <div class="chat-quick" id="chatQuick"></div>
+            <form class="chat-input" id="chatForm">
+              <label for="chatInput" class="sr-only" data-i18n="ask.ph">Describe what happened</label>
+              <textarea id="chatInput" rows="2" data-i18n-ph="ask.ph" placeholder="Describe what happened, or paste the message…"></textarea>
+              <button class="btn btn-primary" type="submit" data-i18n-aria="ask.send"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4z"/></svg></button>
+            </form>
+            <p class="chat-note"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg><span data-i18n="ask.note">Never share passwords, OTPs, IC or bank numbers — not even here.</span></p>
+          </div>
+          <aside class="card ask-side">
+            <h2 data-i18n="ask.sideTitle">What I look for</h2>
+            <ul class="check-list">
+              <li data-i18n="ask.side1">Upfront fees for jobs or rooms</li>
+              <li data-i18n="ask.side2">Requests for passwords, OTP, TAC or IC</li>
+              <li data-i18n="ask.side3">Fake look-alike websites and emails</li>
+              <li data-i18n="ask.side4">Pressure to act right now</li>
+              <li data-i18n="ask.side5">Matches with scams other APU students reported</li>
+            </ul>
+            <div class="paid-box"><b data-i18n="ask.sidePaid">Already paid?</b><p data-i18n="ask.sidePaidText">Call your bank to freeze the transfer, then call the National Scam Response Centre at 997.</p><a class="btn btn-sm btn-outline-danger" href="tel:997">997</a></div>
+          </aside>
         </section>
       </section>
 
