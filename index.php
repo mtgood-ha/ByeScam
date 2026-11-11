@@ -10,7 +10,6 @@
 <body>
 <div class="app">
 
-  <!-- ============ SIDEBAR ============ -->
   <aside class="sidebar" id="sidebar">
     <a class="brand" href="index.php">
       <img src="assets/img/logo.svg" alt="" width="46" height="46">
@@ -57,7 +56,6 @@
   </aside>
   <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
 
-  <!-- ============ MAIN ============ -->
   <main class="main">
     <header class="topbar">
       <button class="icon-btn menu-btn" id="menuBtn" aria-label="Toggle menu" title="Toggle sidebar">
@@ -84,14 +82,12 @@
         </div>
       </div>
 
-      <!-- Alert banner -->
       <div class="alert" id="alertBanner" hidden>
         <div class="alert-icon"><svg viewBox="0 0 24 24"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0zM12 9v4M12 17h.01"/></svg></div>
         <div><strong id="alertTitle"></strong><p id="alertText"></p></div>
         <button class="btn btn-sm btn-outline-danger" id="alertAction">View reports</button>
       </div>
 
-      <!-- Stat cards -->
       <section class="stats">
         <div class="stat">
           <div class="stat-icon blue"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h5"/></svg></div>
@@ -111,7 +107,6 @@
         </div>
       </section>
 
-      <!-- AI-grouped trends -->
       <section class="card" id="trendsSection">
         <div class="card-head">
           <div>
@@ -127,7 +122,6 @@
         <button class="btn btn-ghost btn-block" id="moreTrends" hidden>Show all trends</button>
       </section>
 
-      <!-- Charts row -->
       <section class="grid-2-1">
         <div class="card">
           <div class="card-head">
@@ -142,7 +136,6 @@
         </div>
       </section>
 
-      <!-- Insights row -->
       <section class="grid-2">
         <div class="card">
           <div class="card-head"><div><h2>Most common red flags</h2><p class="muted">What gives these scams away</p></div></div>
@@ -154,7 +147,6 @@
         </div>
       </section>
 
-      <!-- Live feed -->
       <section class="card" id="feedSection">
         <div class="card-head feed-head">
           <div><h2>Live report feed</h2><p class="muted" id="feedCount"></p></div>
@@ -176,7 +168,6 @@
   </main>
 </div>
 
-<!-- ============ REPORT MODAL ============ -->
 <div class="modal" id="reportModal" hidden>
   <div class="modal-box modal-lg" role="dialog" aria-modal="true" aria-labelledby="reportTitle">
     <div class="modal-head">
@@ -244,7 +235,6 @@
   </div>
 </div>
 
-<!-- ============ DETAIL DRAWER ============ -->
 <div class="drawer" id="drawer" hidden>
   <div class="drawer-box">
     <div class="modal-head">
@@ -255,7 +245,6 @@
   </div>
 </div>
 
-<!-- ============ TIPS MODAL ============ -->
 <div class="modal" id="tipsModal" hidden>
   <div class="modal-box" role="dialog" aria-modal="true">
     <div class="modal-head">

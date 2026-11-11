@@ -1,20 +1,4 @@
 <?php
-/**
- * ByeScam trend engine.
- *
- * Groups similar crowdsourced reports into "trends" and writes a plain-English
- * headline for each one, e.g.
- *   "7 reports this week: Fake Shopee internship asking for an RM50 training fee"
- *
- * How similarity works (0..1):
- *   - must be the same scam category
- *   - same impersonated brand         +0.45   (different brands: -0.30)
- *   - same thing being asked for       +0.25   (both ask for money: +0.15)
- *   - overlapping red flags            up to +0.30
- *   - overlapping words in the message up to +0.35
- * A report joins the most similar trend if the score is >= 0.5,
- * otherwise it starts a new trend.
- */
 require_once __DIR__ . '/analyzer.php';
 
 const BS_MATCH_THRESHOLD = 0.5;
@@ -26,7 +10,6 @@ function bs_jaccard(array $a, array $b): float {
     return $union ? $inter / $union : 0.0;
 }
 
-/** Turn a list of values into the most common one. */
 function bs_mode(array $values) {
     $values = array_filter($values, fn($v) => $v !== null && $v !== '');
     if (!$values) return null;
@@ -35,7 +18,6 @@ function bs_mode(array $values) {
     return key($c);
 }
 
-/** A cluster's "profile" summarises its members so new reports can be compared against it. */
 function bs_cluster_profile(array $members): array {
     $n = count($members);
     $tokCount = []; $flagCount = [];
@@ -43,7 +25,7 @@ function bs_cluster_profile(array $members): array {
         foreach ($r['features']['tokens'] as $t) $tokCount[$t] = ($tokCount[$t] ?? 0) + 1;
         foreach (array_column($r['flags'], 'key') as $f) $flagCount[$f] = ($flagCount[$f] ?? 0) + 1;
     }
-    $min = max(1, (int)ceil($n * 0.34));   // keep words/flags shared by about a third of the reports
+    $min = max(1, (int)ceil($n * 0.34));
     return [
         'category'    => $members[0]['category'],
         'brand'       => bs_mode(array_map(fn($r) => $r['features']['brand'], $members)),
@@ -66,7 +48,6 @@ function bs_similarity(array $report, array $profile): float {
     return round(min(1.0, $s), 3);
 }
 
-/** Group reports into clusters (oldest first so trends grow naturally over time). */
 function bs_cluster(array $reports): array {
     usort($reports, fn($a, $b) => strcmp($a['created_at'], $b['created_at']));
     $clusters = [];
@@ -87,7 +68,6 @@ function bs_cluster(array $reports): array {
     return $clusters;
 }
 
-/** Find which existing trend a (new, unsaved) report would join. */
 function bs_match_trend(array $report, array $trends): ?array {
     $best = null; $bestScore = 0;
     foreach ($trends as $t) {
@@ -112,7 +92,6 @@ function bs_amount_text(array $amounts): ?string {
     return $fmt(min($amounts)) . '–' . $fmt(max($amounts));
 }
 
-/** Write the trend title, e.g. "Fake Shopee internship asking for an RM50 training fee". */
 function bs_trend_title(array $members, array $profile): string {
     $brandName = bs_mode(array_map(fn($r) => $r['features']['brand_name'], $members));
     $askLabel  = bs_mode(array_map(fn($r) => $r['features']['ask_label'], $members));
@@ -155,13 +134,12 @@ function bs_trend_title(array $members, array $profile): string {
     }
 }
 
-/** Build the full trend objects the dashboard needs. */
 function bs_trends(array $reports): array {
     $now = time(); $day = 86400;
     $out = [];
     foreach (bs_cluster($reports) as $c) {
         $m = $c['members'];
-        usort($m, fn($a, $b) => strcmp($b['created_at'], $a['created_at']));   // newest first
+        usort($m, fn($a, $b) => strcmp($b['created_at'], $a['created_at']));
         $p = $c['profile'];
 
         $week = 0; $prevWeek = 0; $spark = array_fill(0, 14, 0);
@@ -209,7 +187,7 @@ function bs_trends(array $reports): array {
             'profile'    => $p,
         ];
     }
-    // Biggest, most active trends first
+
     usort($out, fn($a, $b) => [$b['this_week'], $b['count'], $b['risk']] <=> [$a['this_week'], $a['count'], $a['risk']]);
     return $out;
 }

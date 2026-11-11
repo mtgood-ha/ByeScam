@@ -1,10 +1,4 @@
 <?php
-/**
- * GET  api/reports.php             -> { reports, trends, stats }
- * GET  api/reports.php?reset=1     -> wipe and re-seed the 30 demo reports
- * POST api/reports.php?preview=1   -> analyse a message + show which trend it matches (nothing saved)
- * POST api/reports.php             -> save a new crowdsourced report
- */
 require_once __DIR__ . '/../includes/store.php';
 header('Content-Type: application/json; charset=utf-8');
 
@@ -39,7 +33,6 @@ if ($method === 'POST') {
     array_unshift($reports, $report);
     bs_save_reports($reports);
 
-    // Tell the student which trend their report joined
     $match = null;
     foreach (bs_trends($reports) as $t) {
         if (in_array($report['id'], $t['report_ids'], true)) {

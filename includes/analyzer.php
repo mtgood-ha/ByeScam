@@ -1,11 +1,4 @@
 <?php
-/**
- * ByeScam scam analyzer.
- * Learns nothing magical: it scores a report using keyword patterns on the
- * message text, the sender domain and the URL, then assigns a category,
- * a list of red flags and a 0-100 risk score.
- */
-
 const CATEGORIES = [
     'internship' => ['internship', 'intern ', 'job offer', 'hiring', 'part-time', 'part time', 'commission',
                      'training fee', 'registration fee', 'recruit', 'salary', 'work from home', 'hr department',
@@ -43,7 +36,7 @@ const FREE_MAIL   = ['gmail.com', 'yahoo.com', 'hotmail.com', 'outlook.com', 'li
 const BAD_TLDS    = ['xyz', 'top', 'click', 'info', 'live', 'online', 'site', 'icu', 'buzz', 'shop', 'cfd', 'rest', 'work', 'support'];
 const CHAT_HOSTS  = ['wa.me', 't.me', 'api.whatsapp.com', 'telegram.me'];
 const SHORTENERS  = ['bit.ly', 'tinyurl.com', 't.co', 's.id', 'cutt.ly', 'shorturl.at', 'rb.gy', 'is.gd', 'tiny.cc'];
-const BRANDS      = [  // brand keyword => official domains
+const BRANDS      = [
     'apu'     => ['apu.edu.my', 'apiit.edu.my'],
     'apspace' => ['apu.edu.my'],
     'maybank' => ['maybank2u.com.my', 'maybank.com'],
@@ -60,7 +53,7 @@ function bs_host(string $value): string {
     if (!preg_match('#^[a-z]+://#', $value)) $value = 'http://' . $value;
     $host = parse_url($value, PHP_URL_HOST) ?: '';
     $host = preg_replace('/^www\./', '', $host);
-    // phone numbers or plain names are not domains
+
     return preg_match('/^[a-z0-9.-]+\.[a-z]{2,}$/', $host) ? $host : '';
 }
 
@@ -68,7 +61,6 @@ function bs_ends_with(string $host, string $domain): bool {
     return $host === $domain || substr($host, -strlen('.' . $domain)) === '.' . $domain;
 }
 
-/** Whole-word / whole-phrase match so "tac" does not match "contact". */
 function bs_has(string $text, string $phrase): bool {
     return (bool)preg_match('/(?<![a-z0-9])' . preg_quote(trim($phrase), '/') . '(?![a-z0-9])/', $text);
 }
@@ -82,7 +74,6 @@ function bs_analyze(string $message, string $sender = '', string $url = ''): arr
         if (!isset($flags[$key])) $flags[$key] = ['key' => $key, 'label' => $label, 'weight' => $weight, 'evidence' => $evidence];
     };
 
-    // 1. Category by keyword hits
     $scores = [];
     foreach (CATEGORIES as $cat => $words) {
         $scores[$cat] = 0;
@@ -92,7 +83,6 @@ function bs_analyze(string $message, string $sender = '', string $url = ''): arr
     $category = key($scores);
     if (reset($scores) === 0) $category = $url !== '' ? 'phishing' : 'other';
 
-    // 2. Message-text red flags
     foreach (FLAG_RULES as $key => $rule) {
         foreach ($rule['words'] as $w) {
             if (bs_has($text, $w)) { $add($key, $rule['label'], $rule['weight'], '"' . trim($w) . '"'); break; }
@@ -102,14 +92,12 @@ function bs_analyze(string $message, string $sender = '', string $url = ''): arr
         $add('too_good', 'Too-good-to-be-true offer', 15, '"' . $m[0] . '"');
     }
 
-    // 3. Sender domain checks
     if ($senderHost !== '') {
         if (in_array($senderHost, FREE_MAIL, true) && in_array($category, ['internship', 'phishing'], true)) {
             $add('free_mail', 'Official-sounding message from free email', 15, $senderHost);
         }
     }
 
-    // 4. URL / domain checks (sender + link)
     foreach (array_filter([$senderHost, $urlHost]) as $host) {
         $tld = substr(strrchr($host, '.') ?: '', 1);
         if (in_array($tld, BAD_TLDS, true)) $add('bad_tld', 'High-risk domain ending (.' . $tld . ')', 15, $host);
@@ -130,11 +118,10 @@ function bs_analyze(string $message, string $sender = '', string $url = ''): arr
         $add('no_https', 'Link is not HTTPS', 5, $urlHost);
     }
 
-    // Classic scam combinations get a bonus
     $combo = 0;
-    if (isset($flags['payment'], $flags['no_viewing'])) $combo += 20;   // pay-before-viewing rental
-    if (isset($flags['payment'], $flags['too_good']))   $combo += 10;   // pay-to-work job
-    if (isset($flags['credentials'], $flags['lookalike'])) $combo += 10; // fake login page
+    if (isset($flags['payment'], $flags['no_viewing'])) $combo += 20;
+    if (isset($flags['payment'], $flags['too_good']))   $combo += 10;
+    if (isset($flags['credentials'], $flags['lookalike'])) $combo += 10;
     if (count($flags) >= 3) $combo += 10;
     $risk = min(100, array_sum(array_column($flags, 'weight')) + $combo);
     $level = $risk >= 60 ? 'high' : ($risk >= 30 ? 'medium' : 'low');
@@ -148,7 +135,6 @@ function bs_analyze(string $message, string $sender = '', string $url = ''): arr
     ];
 }
 
-/** The domain worth putting on the watchlist (skips gmail.com, wa.me, etc.). */
 function bs_threat_domain(string $senderHost, string $urlHost): string {
     foreach ([$urlHost, $senderHost] as $h) {
         if ($h !== '' && !in_array($h, FREE_MAIL, true) && !in_array($h, CHAT_HOSTS, true)) return $h;
@@ -156,11 +142,6 @@ function bs_threat_domain(string $senderHost, string $urlHost): string {
     return '';
 }
 
-/* ------------------------------------------------------------------
-   Features used to group similar reports into trends
-   ------------------------------------------------------------------ */
-
-// Impersonated brands: keyword => [group key, display name]. First match wins.
 const BRAND_KEYWORDS = [
     'apspace' => ['apu', 'APU student portal'], 'moodle' => ['apu', 'APU student portal'],
     'student portal' => ['apu', 'APU student portal'], 'apu' => ['apu', 'APU student portal'],
@@ -171,7 +152,6 @@ const BRAND_KEYWORDS = [
     'office365' => ['microsoft', 'Microsoft 365'], 'microsoft' => ['microsoft', 'Microsoft 365'],
 ];
 
-// What the scammer wants: regex => [key, label, is_payment]
 const ASK_PATTERNS = [
     '/training (fee|material|course)/'          => ['training_fee', 'training fee', true],
     '/(registration|joining) fee|register.{0,20}fee/' => ['registration_fee', 'registration fee', true],
@@ -206,7 +186,6 @@ function bs_features(string $message, string $sender = '', string $url = ''): ar
         }
     }
 
-    // Amount: the RM figure closest to what is being asked for (not the fake salary)
     $amount = null;
     if ($askPay && preg_match_all('/rm\s?(\d+(?:[.,]\d+)?)/', $text, $mm, PREG_OFFSET_CAPTURE)) {
         $best = PHP_INT_MAX;

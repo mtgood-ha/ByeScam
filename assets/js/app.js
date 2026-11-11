@@ -1,6 +1,3 @@
-/* =========================================================
-   ByeScam — Live Campus Scan (front end)
-   ========================================================= */
 (() => {
   'use strict';
 
@@ -46,14 +43,12 @@
     { message: 'Earn RM150 per day with Grab food review tasks! Pay RM40 activation fee to start. Limited slots, WhatsApp me now.', sender: 'grab.tasks.my@gmail.com', url: 'https://wa.me/60123456789', channel: 'Telegram' },
   ];
 
-  /* ---------- state ---------- */
   let data = { reports: [], trends: [], stats: null };
   const ui = { filter: 'all', search: '', trendId: null, shown: 8, sort: 'week', allTrends: false };
   let knownIds = null;
   let lastUpdated = 0;
   const drawerStack = [];
 
-  /* ---------- helpers ---------- */
   const $ = (s, el = document) => el.querySelector(s);
   const $$ = (s, el = document) => [...el.querySelectorAll(s)];
   const esc = (v) => String(v ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -83,7 +78,6 @@
     return body;
   }
 
-  /* ---------- load + poll ---------- */
   async function load() {
     try {
       const d = await api(`${API}?t=${Date.now()}`);
@@ -104,7 +98,6 @@
     $('#updatedText').textContent = s < 5 ? 'Live · updated just now' : `Live · updated ${s}s ago`;
   }, 1000);
 
-  /* ---------- render ---------- */
   function render(fresh = []) {
     renderStats();
     renderAlert();
@@ -134,7 +127,6 @@
     $('#alertAction').onclick = () => openTrend(t.id);
   }
 
-  /* ----- trends ----- */
   function sparkSvg(values, color, w = 120, h = 40) {
     const max = Math.max(1, ...values);
     const bw = w / values.length;
@@ -185,7 +177,6 @@
     }).join('') || '<p class="empty">No trends yet. Be the first to report a scam!</p>';
   }
 
-  /* ----- stacked bar chart ----- */
   function renderChart() {
     const el = $('#trendChart');
     const days = data.stats.daily;
@@ -238,7 +229,6 @@
     });
   }
 
-  /* ----- donut ----- */
   function renderDonut() {
     const counts = data.stats.categories;
     const total = Object.values(counts).reduce((a, b) => a + b, 0) || 1;
@@ -257,7 +247,6 @@
       <ul class="donut-legend">${order.map((c) => `<li><i class="dot ${c}"></i>${cat(c).label}<b>${counts[c]}</b><em>${Math.round((counts[c] / total) * 100)}%</em></li>`).join('')}</ul>`;
   }
 
-  /* ----- red flags ----- */
   function renderFlags() {
     const flags = data.stats.flags;
     const max = Math.max(1, ...flags.map((f) => f.count));
@@ -266,7 +255,6 @@
     requestAnimationFrame(() => $$('#flagBars .fill').forEach((el) => (el.style.width = el.dataset.w + '%')));
   }
 
-  /* ----- domain watchlist ----- */
   function renderDomains() {
     const cutoff = Date.now() - 14 * 864e5;
     const map = new Map();
@@ -286,7 +274,6 @@
       </li>`).join('') || '<li class="empty">No suspicious domains yet.</li>';
   }
 
-  /* ----- feed ----- */
   function filteredReports() {
     const q = ui.search.trim().toLowerCase();
     return data.reports.filter((r) => {
@@ -323,7 +310,6 @@
     $('#loadMore').hidden = list.length <= ui.shown;
   }
 
-  /* ---------- drawer (trend + report detail) ---------- */
   function showDrawer(html) {
     $('#drawerBody').innerHTML = html;
     $('#drawer').hidden = false;
@@ -397,7 +383,6 @@
       ${adviceBlock(r.category)}`);
   }
 
-  /* ---------- modals ---------- */
   function openModal(id) { $(id).hidden = false; }
   function closeAll() {
     $$('.modal, .drawer').forEach((m) => (m.hidden = true));
@@ -416,7 +401,6 @@
     setTimeout(() => f.elements.message.focus(), 50);
   }
 
-  /* live analysis preview */
   let previewTimer, previewSeq = 0;
   function preview() {
     clearTimeout(previewTimer);
@@ -489,7 +473,6 @@
       + `<div class="tip"><div class="report-ico" style="--c:var(--primary)">${ICON.flag}</div><div><h3>Already paid or clicked a link?</h3><ul><li>Call your bank immediately and freeze your card.</li><li>Call the National Scam Response Centre at <b>997</b>.</li><li>Change your APU password and tell APU IT Services.</li></ul></div></div>`;
   }
 
-  /* ---------- events ---------- */
   document.addEventListener('click', (e) => {
     const el = e.target.closest('[data-trend],[data-report],[data-open-report],[data-close],[data-got-this],[data-filter-trend],[data-back],[data-soon]');
     if (!el) {
@@ -554,7 +537,6 @@
 
   $('#openTips').addEventListener('click', (e) => { e.preventDefault(); closeSidebar(); renderTips(); openModal('#tipsModal'); });
 
-  // mobile sidebar
   const closeSidebar = () => $('#sidebar').classList.remove('open');
   const isMobile = () => window.matchMedia('(max-width: 900px)').matches;
   function setCollapsed(on) {
@@ -562,10 +544,10 @@
     const btn = $('#collapseBtn');
     btn.title = on ? 'Expand sidebar' : 'Collapse sidebar';
     btn.setAttribute('aria-label', btn.title);
-    try { localStorage.setItem('byescam.sidebarCollapsed', on ? '1' : '0'); } catch (e) { /* storage unavailable */ }
-    setTimeout(() => data.stats && renderChart(), 240);   // chart resizes to the new width
+    try { localStorage.setItem('byescam.sidebarCollapsed', on ? '1' : '0'); } catch (e) {  }
+    setTimeout(() => data.stats && renderChart(), 240);
   }
-  try { if (localStorage.getItem('byescam.sidebarCollapsed') === '1') $('.app').classList.add('collapsed'); } catch (e) { /* ignore */ }
+  try { if (localStorage.getItem('byescam.sidebarCollapsed') === '1') $('.app').classList.add('collapsed'); } catch (e) {  }
   $('#collapseBtn').addEventListener('click', () => setCollapsed(!$('.app').classList.contains('collapsed')));
   $('#menuBtn').addEventListener('click', () => {
     if (isMobile()) $('#sidebar').classList.add('open');
