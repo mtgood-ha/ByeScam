@@ -2,13 +2,13 @@
 require_once __DIR__ . '/analyzer.php';
 
 const BS_ZONES = [
-    'block-j'       => ['name' => 'On-Campus Accommodation (Block J)', 'short' => 'Block J', 'x' => 31.0, 'y' => 45.5, 'ap' => 'BLKJ', 'aps' => 6],
-    'block-e'       => ['name' => 'Block E',                            'short' => 'Block E', 'x' => 38.2, 'y' => 56.0, 'ap' => 'BLKE', 'aps' => 8],
-    'block-d'       => ['name' => 'Block D',                            'short' => 'Block D', 'x' => 46.0, 'y' => 61.5, 'ap' => 'BLKD', 'aps' => 8],
-    'block-b'       => ['name' => 'Block B',                            'short' => 'Block B', 'x' => 54.0, 'y' => 68.5, 'ap' => 'BLKB', 'aps' => 6],
-    'spine'         => ['name' => 'The Spine',                          'short' => 'Spine',   'x' => 58.5, 'y' => 47.0, 'ap' => 'SPN',  'aps' => 10],
-    'main-entrance' => ['name' => 'Main Entrance',                      'short' => 'Entrance','x' => 71.0, 'y' => 71.5, 'ap' => 'ENT',  'aps' => 3],
-    'parking'       => ['name' => 'Open Space Parking',                 'short' => 'Parking', 'x' => 61.0, 'y' => 90.0, 'ap' => 'PRK',  'aps' => 2],
+    'block-j'       => ['name' => 'On-Campus Accommodation (Block J)', 'short' => 'Block J', 'x' => 23.5, 'y' => 31.8, 'ap' => 'BLKJ', 'aps' => 6],
+    'block-e'       => ['name' => 'Block E',                            'short' => 'Block E', 'x' => 33.6, 'y' => 45.3, 'ap' => 'BLKE', 'aps' => 8],
+    'block-d'       => ['name' => 'Block D',                            'short' => 'Block D', 'x' => 44.6, 'y' => 52.4, 'ap' => 'BLKD', 'aps' => 8],
+    'block-b'       => ['name' => 'Block B',                            'short' => 'Block B', 'x' => 55.9, 'y' => 61.4, 'ap' => 'BLKB', 'aps' => 6],
+    'spine'         => ['name' => 'The Spine',                          'short' => 'Spine',   'x' => 62.2, 'y' => 33.7, 'ap' => 'SPN',  'aps' => 10],
+    'main-entrance' => ['name' => 'Main Entrance',                      'short' => 'Entrance','x' => 79.8, 'y' => 65.3, 'ap' => 'ENT',  'aps' => 3],
+    'parking'       => ['name' => 'Open Space Parking',                 'short' => 'Parking', 'x' => 65.7, 'y' => 89.2, 'ap' => 'PRK',  'aps' => 2],
 ];
 
 const BS_ZONE_AFFINITY = [
