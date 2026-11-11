@@ -13,7 +13,7 @@
   <!-- ============ SIDEBAR ============ -->
   <aside class="sidebar" id="sidebar">
     <a class="brand" href="index.php">
-      <img src="assets/img/logo.svg" alt="" width="34" height="34">
+      <img src="assets/img/logo.svg" alt="" width="46" height="46">
       <span>Bye<b>Scam</b></span>
     </a>
 
