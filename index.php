@@ -14,31 +14,31 @@
   <aside class="sidebar" id="sidebar">
     <a class="brand" href="index.php">
       <img src="assets/img/logo.svg" alt="" width="46" height="46">
-      <span>Bye<b>Scam</b></span>
+      <span class="brand-text">Bye<b>Scam</b></span>
     </a>
 
     <nav class="nav">
       <p class="nav-label">Protect</p>
-      <a class="nav-item active" href="index.php">
+      <a class="nav-item active" href="index.php" title="Live Campus Scan">
         <svg viewBox="0 0 24 24"><path d="M2 12h3l3-8 4 16 3-8h7"/></svg>
-        Live Campus Scan
+        <span class="nav-text">Live Campus Scan</span>
         <span class="live-dot" title="Live"></span>
       </a>
-      <a class="nav-item disabled" href="#" data-soon="URL & Links Inspector">
+      <a class="nav-item disabled" href="#" data-soon="URL & Links Inspector" title="URL &amp; Links Inspector (soon)">
         <svg viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/></svg>
-        URL &amp; Links Inspector
+        <span class="nav-text">URL &amp; Links Inspector</span>
         <span class="badge-soon">Soon</span>
       </a>
-      <a class="nav-item disabled" href="#" data-soon="1-Click Emergency Freeze">
+      <a class="nav-item disabled" href="#" data-soon="1-Click Emergency Freeze" title="Emergency Freeze (soon)">
         <svg viewBox="0 0 24 24"><path d="M12 2v20M4.9 4.9l14.2 14.2M2 12h20M4.9 19.1 19.1 4.9"/></svg>
-        Emergency Freeze
+        <span class="nav-text">Emergency Freeze</span>
         <span class="badge-soon">Soon</span>
       </a>
 
       <p class="nav-label">Help</p>
-      <a class="nav-item" href="#" id="openTips">
+      <a class="nav-item" href="#" id="openTips" title="Safety tips">
         <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3M12 17h.01"/></svg>
-        Safety tips
+        <span class="nav-text">Safety tips</span>
       </a>
     </nav>
 
@@ -47,13 +47,20 @@
       <p>Share it so ByeScam can warn other students.</p>
       <button class="btn btn-light btn-block" data-open-report>Report a scam</button>
     </div>
+    <button class="sidebar-mini-report" data-open-report title="Report a scam" aria-label="Report a scam">
+      <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+    </button>
+    <button class="collapse-btn" id="collapseBtn" title="Collapse sidebar" aria-label="Collapse sidebar">
+      <svg viewBox="0 0 24 24"><path d="m11 17-5-5 5-5M18 17l-5-5 5-5"/></svg>
+      <span class="nav-text">Collapse</span>
+    </button>
   </aside>
   <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
 
   <!-- ============ MAIN ============ -->
   <main class="main">
     <header class="topbar">
-      <button class="icon-btn menu-btn" id="menuBtn" aria-label="Open menu">
+      <button class="icon-btn menu-btn" id="menuBtn" aria-label="Toggle menu" title="Toggle sidebar">
         <svg viewBox="0 0 24 24"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
       </button>
       <div class="search">

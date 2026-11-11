@@ -556,7 +556,21 @@
 
   // mobile sidebar
   const closeSidebar = () => $('#sidebar').classList.remove('open');
-  $('#menuBtn').addEventListener('click', () => $('#sidebar').classList.add('open'));
+  const isMobile = () => window.matchMedia('(max-width: 900px)').matches;
+  function setCollapsed(on) {
+    $('.app').classList.toggle('collapsed', on);
+    const btn = $('#collapseBtn');
+    btn.title = on ? 'Expand sidebar' : 'Collapse sidebar';
+    btn.setAttribute('aria-label', btn.title);
+    try { localStorage.setItem('byescam.sidebarCollapsed', on ? '1' : '0'); } catch (e) { /* storage unavailable */ }
+    setTimeout(() => data.stats && renderChart(), 240);   // chart resizes to the new width
+  }
+  try { if (localStorage.getItem('byescam.sidebarCollapsed') === '1') $('.app').classList.add('collapsed'); } catch (e) { /* ignore */ }
+  $('#collapseBtn').addEventListener('click', () => setCollapsed(!$('.app').classList.contains('collapsed')));
+  $('#menuBtn').addEventListener('click', () => {
+    if (isMobile()) $('#sidebar').classList.add('open');
+    else setCollapsed(!$('.app').classList.contains('collapsed'));
+  });
   $('#sidebarBackdrop').addEventListener('click', closeSidebar);
 
   let resizeT;

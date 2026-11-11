@@ -399,3 +399,48 @@ ul { list-style: none; margin: 0; padding: 0; }
 
 /* stop the page behind from scrolling while a panel is open */
 body:has(.drawer:not([hidden]), .modal:not([hidden])) { overflow: hidden; }
+
+/* =========================================================
+   Collapsible sidebar (desktop)
+   ========================================================= */
+.sidebar { transition: width .22s ease, padding .22s ease; overflow-x: hidden; }
+.nav-item, .brand { white-space: nowrap; }
+.nav-text, .brand-text { transition: opacity .15s ease; }
+.collapse-btn { display: flex; align-items: center; gap: 12px; margin-top: 10px; padding: 10px 12px; border: 0; border-radius: 10px; background: transparent; color: #7D88A6; font-size: 13.5px; font-weight: 500; white-space: nowrap; }
+.collapse-btn:hover { background: var(--navy-2); color: #fff; }
+.collapse-btn svg { transition: transform .22s ease; }
+.sidebar-mini-report { display: none; }
+
+.app.collapsed .sidebar { width: 84px; padding-left: 14px; padding-right: 14px; }
+.app.collapsed .brand { padding-left: 0; padding-right: 0; gap: 0; }
+.app.collapsed .brand img { width: 44px; height: 44px; }
+.app.collapsed .brand-text,
+.app.collapsed .nav-text,
+.app.collapsed .badge-soon,
+.app.collapsed .sidebar-card { display: none; }
+.app.collapsed .nav-label { font-size: 0; padding: 12px 0 4px; }
+.app.collapsed .nav-label::after { content: ""; display: block; height: 1px; background: rgba(255,255,255,.08); margin: 0 8px; }
+.app.collapsed .nav-item { justify-content: center; padding: 12px 0; position: relative; }
+.app.collapsed .nav-item svg { width: 20px; height: 20px; }
+.app.collapsed .live-dot { position: absolute; top: 8px; right: 12px; margin: 0; width: 7px; height: 7px; }
+.app.collapsed .sidebar-mini-report { display: grid; place-items: center; width: 48px; height: 48px; margin: 0 auto; border: 0; border-radius: 14px; color: #fff; background: linear-gradient(140deg, #2F5BEA, #14B8A6); }
+.app.collapsed .sidebar-mini-report:hover { filter: brightness(1.08); }
+.app.collapsed .collapse-btn { justify-content: center; padding: 12px 0; }
+.app.collapsed .collapse-btn svg { transform: rotate(180deg); }
+
+@media (min-width: 901px) {
+  .icon-btn.menu-btn { display: inline-grid; }
+}
+@media (max-width: 900px) {
+  .collapse-btn { display: none; }
+  .app.collapsed .sidebar { width: 264px; padding: 22px 16px; }
+  .app.collapsed .brand-text, .app.collapsed .nav-text, .app.collapsed .badge-soon { display: inline; }
+  .app.collapsed .sidebar-card { display: block; }
+  .app.collapsed .sidebar-mini-report { display: none; }
+  .app.collapsed .nav-item { justify-content: flex-start; padding: 10px 12px; }
+  .app.collapsed .nav-label { font-size: 11px; padding: 16px 12px 6px; }
+  .app.collapsed .nav-label::after { display: none; }
+  .app.collapsed .live-dot { position: static; margin-left: auto; }
+  .app.collapsed .brand { gap: 12px; padding: 10px 8px 26px; }
+}
+.nav-item .nav-text { white-space: normal; line-height: 1.3; }
