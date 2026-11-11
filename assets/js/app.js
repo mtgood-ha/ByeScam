@@ -145,7 +145,7 @@
     $$('[data-i18n-title]').forEach((el) => { el.title = t(el.dataset.i18nTitle); });
     $$('[data-i18n-aria]').forEach((el) => { el.setAttribute('aria-label', t(el.dataset.i18nAria)); });
     $$('[data-i18n-alt]').forEach((el) => { el.alt = t(el.dataset.i18nAlt); });
-    const vt = { overview: 'ov.title', ask: 'ask.title', map: 'mp.title', network: 'nw.title', verify: 'vf.title' }[ui.view];
+    const vt = { overview: 'ov.title', map: 'mp.title', network: 'nw.title', verify: 'vf.title' }[ui.view];
     document.title = `${t(vt)} · ByeScam`;
     renderLocationOptions();
   }
@@ -179,7 +179,8 @@
   }
 
   function setView(view, focus) {
-    if (!['overview', 'ask', 'map', 'network', 'verify'].includes(view)) view = 'overview';
+    if (view === 'ask') { openChat(); view = ui.view || 'overview'; history.replaceState(null, '', '#' + view); }
+    if (!['overview', 'map', 'network', 'verify'].includes(view)) view = 'overview';
     ui.view = view;
     $$('[data-view]').forEach((s) => (s.hidden = s.dataset.view !== view));
     $$('[data-view-link]').forEach((a) => {
@@ -246,7 +247,7 @@
     else if (ui.view === 'map') renderMap();
     else if (ui.view === 'network') renderNetwork();
     else if (ui.view === 'verify') renderDirectory();
-    else if (ui.view === 'ask') renderAsk();
+    if (!$('#chatPanel').hidden) renderAsk();
   }
 
   function renderOverview(fresh = []) {
@@ -869,6 +870,21 @@
 
   const ask = { started: false, topic: '', story: '', answers: {}, messages: [], log: [], quick: null, busy: false, done: false, mode: null };
 
+  function openChat() {
+    const panel = $('#chatPanel');
+    if (!panel.hidden) return;
+    panel.hidden = false;
+    $('#chatFab').classList.add('open');
+    $('#chatFab').setAttribute('aria-expanded', 'true');
+    renderAsk();
+    setTimeout(() => $('#chatInput').focus(), 60);
+  }
+  function closeChat() {
+    $('#chatPanel').hidden = true;
+    $('#chatFab').classList.remove('open');
+    $('#chatFab').setAttribute('aria-expanded', 'false');
+  }
+
   function askReset() {
     Object.assign(ask, { started: true, topic: '', story: '', answers: {}, messages: [], log: [], quick: null, busy: false, done: false });
     ask.log.push({ who: 'bot', key: 'ask.hello' });
@@ -1013,7 +1029,7 @@
       const a = el.dataset.askAction;
       if (a === 'restart') askReset();
       if (a === 'report') openReportForm({ message: ask.story.trim() });
-      if (a === 'verify') { location.hash = 'verify'; setTimeout(() => { $('#verifyInput').value = el.dataset.domain; runVerify(el.dataset.domain); }, 60); }
+      if (a === 'verify') { if (window.matchMedia('(max-width: 560px)').matches) closeChat(); location.hash = 'verify'; setTimeout(() => { $('#verifyInput').value = el.dataset.domain; runVerify(el.dataset.domain); }, 60); }
       return;
     }
     if (el.dataset.soon) { e.preventDefault(); toast(`<span>${t('toast.soon', { name: esc(t('nav.' + el.dataset.soon)) })}</span>`); return; }
@@ -1042,7 +1058,10 @@
   });
 
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') closeAll();
+    if (e.key === 'Escape' && !e.target.closest('#chatPanel')) {
+      if ($$('.modal, .drawer').some((m) => !m.hidden)) closeAll();
+      else if (!$('#chatPanel').hidden) closeChat();
+    }
     if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('.report')) { e.preventDefault(); openReport(e.target.dataset.report); }
   });
 
@@ -1071,6 +1090,9 @@
   $('#chatForm').addEventListener('submit', (e) => { e.preventDefault(); const i = $('#chatInput'); askUserText(i.value); i.value = ''; });
   $('#chatInput').addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); $('#chatForm').requestSubmit(); } });
   $('#askRestart').addEventListener('click', askReset);
+  $('#chatFab').addEventListener('click', () => ($('#chatPanel').hidden ? openChat() : closeChat()));
+  $('#chatClose').addEventListener('click', () => { closeChat(); $('#chatFab').focus(); });
+  $('#chatPanel').addEventListener('keydown', (e) => { if (e.key === 'Escape') { e.stopPropagation(); closeChat(); $('#chatFab').focus(); } });
   $('#verifyForm').addEventListener('submit', (e) => { e.preventDefault(); runVerify($('#verifyInput').value); });
 
   $('#reportForm').addEventListener('input', preview);
