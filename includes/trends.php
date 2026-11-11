@@ -92,12 +92,14 @@ function bs_amount_text(array $amounts): ?string {
     return $fmt(min($amounts)) . '–' . $fmt(max($amounts));
 }
 
-function bs_trend_title(array $members, array $profile): string {
+function bs_trend_title(array $members, array $profile): array {
     $brandName = bs_mode(array_map(fn($r) => $r['features']['brand_name'], $members));
     $askLabel  = bs_mode(array_map(fn($r) => $r['features']['ask_label'], $members));
     $amount    = bs_amount_text(array_map(fn($r) => $r['features']['ask'] === $profile['ask'] ? $r['features']['amount'] : null, $members));
     $tokens    = $profile['tokens'];
     $flags     = $profile['flags'];
+    $parts = ['category' => $profile['category'], 'brand' => $brandName, 'ask' => $askLabel ? $profile['ask'] : null,
+              'ask_payment' => $profile['ask_payment'], 'amount' => $amount, 'kind' => null, 'near_apu' => false, 'before_viewing' => false];
 
     $askPhrase = '';
     if ($askLabel) {
@@ -107,30 +109,33 @@ function bs_trend_title(array $members, array $profile): string {
 
     switch ($profile['category']) {
         case 'internship':
-            if (in_array('like', $tokens) && in_array('follow', $tokens)) $what = ($brandName ? "$brandName " : '') . '"like & follow" job';
-            elseif ($brandName) $what = "$brandName internship";
-            elseif (in_array('crypto', $tokens) || in_array('usdt', $tokens)) $what = 'crypto trading internship';
-            elseif (in_array('internship', $tokens)) $what = 'online internship';
-            else $what = 'part-time job';
-            return "Fake $what$askPhrase";
+            if (in_array('like', $tokens) && in_array('follow', $tokens)) { $parts['kind'] = 'like_follow'; $what = ($brandName ? "$brandName " : '') . '"like & follow" job'; }
+            elseif ($brandName) { $parts['kind'] = 'brand_internship'; $what = "$brandName internship"; }
+            elseif (in_array('crypto', $tokens) || in_array('usdt', $tokens)) { $parts['kind'] = 'crypto'; $what = 'crypto trading internship'; }
+            elseif (in_array('internship', $tokens)) { $parts['kind'] = 'online_internship'; $what = 'online internship'; }
+            else { $parts['kind'] = 'part_time'; $what = 'part-time job'; }
+            return ["Fake $what$askPhrase", $parts];
 
         case 'rental':
             $apu = count(array_filter($members, fn($r) => preg_match('/\bapu\b/i', $r['message'])));
-            $near = $apu >= count($members) / 2 ? ' near APU' : '';
-            $tail = in_array('no_viewing', $flags) ? ' before viewing' : '';
-            return "Fake room rental$near$askPhrase$tail";
+            $parts['near_apu'] = $apu >= count($members) / 2;
+            $parts['before_viewing'] = in_array('no_viewing', $flags);
+            $parts['kind'] = 'room';
+            return ['Fake room rental' . ($parts['near_apu'] ? ' near APU' : '') . $askPhrase . ($parts['before_viewing'] ? ' before viewing' : ''), $parts];
 
         case 'phishing':
             $b = $brandName ?: 'official-looking';
+            $parts['kind'] = in_array($profile['ask'], ['password', 'otp', 'bank_ic'], true) ? $profile['ask'] : 'message';
             switch ($profile['ask']) {
-                case 'password': return "Fake $b login page stealing passwords";
-                case 'otp':      return "Fake $b security alert asking for your OTP/TAC";
-                case 'bank_ic':  return "Fake $b message asking for bank & IC details";
-                default:         return "Fake $b message$askPhrase";
+                case 'password': return ["Fake $b login page stealing passwords", $parts];
+                case 'otp':      return ["Fake $b security alert asking for your OTP/TAC", $parts];
+                case 'bank_ic':  return ["Fake $b message asking for bank & IC details", $parts];
+                default:         return ["Fake $b message$askPhrase", $parts];
             }
 
         default:
-            return 'Suspicious message' . $askPhrase;
+            $parts['kind'] = 'other';
+            return ['Suspicious message' . $askPhrase, $parts];
     }
 }
 
@@ -163,11 +168,12 @@ function bs_trends(array $reports): array {
         elseif ($now - $last > 4 * $day) $status = 'fading';
         else $status = 'steady';
 
-        $title = bs_trend_title($m, $p);
+        [$title, $parts] = bs_trend_title($m, $p);
         $avgRisk = (int)round($riskSum / count($m));
         $out[] = [
             'id'         => substr(md5($p['category'] . '|' . $title), 0, 10),
             'title'      => $title,
+            'parts'      => $parts,
             'headline'   => $week . ' report' . ($week === 1 ? '' : 's') . " this week: $title",
             'category'   => $p['category'],
             'brand'      => bs_mode(array_map(fn($r) => $r['features']['brand_name'], $m)),

@@ -1,6 +1,10 @@
 <?php
 require_once __DIR__ . '/analyzer.php';
 require_once __DIR__ . '/trends.php';
+require_once __DIR__ . '/campus.php';
+require_once __DIR__ . '/ai.php';
+
+date_default_timezone_set(bs_config()['timezone']);
 
 define('BS_DATA_FILE', __DIR__ . '/../data/reports.json');
 
@@ -31,6 +35,7 @@ function bs_make_report(array $in, ?int $timestamp = null): array {
         'url'        => $url,
         'channel'    => trim((string)($in['channel'] ?? 'Other')) ?: 'Other',
         'faculty'    => trim((string)($in['faculty'] ?? 'Not stated')) ?: 'Not stated',
+        'location'   => bs_valid_zone((string)($in['location'] ?? '')),
         'category'   => $a['category'],
         'risk'       => $a['risk'],
         'level'      => $a['level'],
@@ -83,11 +88,19 @@ function bs_seed_reports(): array {
         ['Internship at crypto trading firm. Earn USDT commission per task, deposit 50 USDT to unlock tasks.', 'hr.dept@cryptoworks.shop', 'https://cryptoworks.shop/task', 'Telegram', 'Computing', 3],
     ];
 
+    $locations = ['block-e', 'block-b', 'block-b', 'block-e', 'block-d', 'spine', 'block-e',
+                  'block-d', 'block-b', 'spine', 'block-e', 'block-b', 'block-j',
+                  'block-j', 'block-j', 'main-entrance', 'block-j', 'block-j',
+                  'spine', 'block-e', 'block-b', 'block-d',
+                  'block-j', 'spine', 'block-b',
+                  'block-e', 'block-j',
+                  'block-j', 'parking',
+                  'block-d'];
     $reports = [];
     $now = time();
     foreach ($samples as $i => $s) {
         $ts = $now - $s[5] * 86400 - (($i * 7919) % 50000) - 600;
-        $reports[] = bs_make_report(['message' => $s[0], 'sender' => $s[1], 'url' => $s[2], 'channel' => $s[3], 'faculty' => $s[4]], $ts);
+        $reports[] = bs_make_report(['message' => $s[0], 'sender' => $s[1], 'url' => $s[2], 'channel' => $s[3], 'faculty' => $s[4], 'location' => $locations[$i] ?? ''], $ts);
     }
     usort($reports, fn($a, $b) => strcmp($b['created_at'], $a['created_at']));
     return $reports;
@@ -117,18 +130,24 @@ function bs_dashboard(array $reports): array {
         if (isset($daily[$k])) $daily[$k][$cat]++;
         foreach ($r['flags'] as $f) $flagCount[$f['label']] = ($flagCount[$f['label']] ?? 0) + 1;
         $r['trend'] = $trendOf[$r['id']] ?? null;
+        if (!array_key_exists('location', $r)) $r['location'] = bs_fallback_zone($r['id']);
         unset($r['features']);
     }
     unset($r);
     arsort($flagCount);
 
     $active = array_values(array_filter($trends, fn($t) => $t['count'] >= 2));
-    foreach ($trends as &$t) unset($t['profile']);
+    $ai = bs_ai_cache();
+    foreach ($trends as &$t) {
+        unset($t['profile']);
+        $t['ai'] = $ai[$t['id'] . ':' . $t['count']] ?? null;
+    }
     unset($t);
 
     return [
         'reports' => $reports,
         'trends'  => $trends,
+        'zones'   => bs_zones_public(),
         'stats'   => [
             'total'         => count($reports),
             'this_week'     => $week,
@@ -136,6 +155,7 @@ function bs_dashboard(array $reports): array {
             'active_trends' => count($active),
             'categories'    => $catCount,
             'daily'         => array_values($daily),
+            'ai_enabled'    => bs_ai_enabled(),
             'flags'         => array_slice(array_map(fn($k, $v) => ['label' => $k, 'count' => $v], array_keys($flagCount), $flagCount), 0, 6),
         ],
     ];

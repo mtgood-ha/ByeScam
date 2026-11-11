@@ -44,6 +44,6 @@ if ($method === 'POST') {
     bs_json(['report' => $report, 'trend' => $match]);
 }
 
-if (isset($_GET['reset'])) bs_save_reports(bs_seed_reports());
+if (isset($_GET['reset'])) { bs_save_reports(bs_seed_reports()); if (file_exists(BS_AI_CACHE_FILE)) @unlink(BS_AI_CACHE_FILE); }
 
 bs_json(bs_dashboard(bs_load_reports()) + ['server_time' => date('c')]);
