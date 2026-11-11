@@ -40,6 +40,3 @@ navigation, screen-reader labels and live regions.
   campus resolver (e.g. a DNS RPZ zone) and read its query logs.
 - The official directory in `includes/campus.php` should be confirmed with APU IT before launch.
 
-## Coming soon
-- URL & Links Inspector
-- 1-Click Emergency Freeze
