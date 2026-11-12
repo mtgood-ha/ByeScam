@@ -604,3 +604,25 @@ Object.assign(window.I18N.zh, {
   'fz.fd.apspace': '锁定了 APSpace 会话', 'fz.fd.email': '锁定了学生电邮', 'fz.fd.moodle': '锁定了 Moodle 会话',
   'fz.fd.wifi': '举报了 Wi-Fi 钓鱼点击', 'fz.fd.other': '冻结了 APU 账户', 'fz.fd.andBlocked': '并拦截了',
 });
+
+Object.assign(window.I18N.en, {
+  'ins.sub': 'The ByeScam Chrome extension checks links in Gmail before you click them.',
+  'ins.extTitle': 'ByeScam Inspector for Chrome', 'ins.extSub': 'Free · Works in Gmail · Install in under a minute',
+  'ins.download': 'Download Extension (.zip)', 'ins.copy': 'Copy',
+  'ins.s1': 'Click Download Extension (.zip) and extract the folder.', 'ins.s2': 'Open a new tab and go to',
+  'ins.s3': 'Turn on Developer mode in the top-right corner.', 'ins.s4': 'Click Load unpacked, select the extracted folder, and refresh Gmail.',
+});
+Object.assign(window.I18N.ms, {
+  'ins.sub': 'Sambungan Chrome ByeScam menyemak pautan dalam Gmail sebelum anda mengkliknya.',
+  'ins.extTitle': 'ByeScam Inspector untuk Chrome', 'ins.extSub': 'Percuma · Berfungsi dalam Gmail · Pasang dalam masa kurang seminit',
+  'ins.download': 'Muat Turun Sambungan (.zip)', 'ins.copy': 'Salin',
+  'ins.s1': 'Klik Muat Turun Sambungan (.zip) dan ekstrak folder itu.', 'ins.s2': 'Buka tab baharu dan pergi ke',
+  'ins.s3': 'Hidupkan Developer mode di penjuru kanan atas.', 'ins.s4': 'Klik Load unpacked, pilih folder yang diekstrak, dan muat semula Gmail.',
+});
+Object.assign(window.I18N.zh, {
+  'ins.sub': 'ByeScam Chrome 扩展程序会在你点击之前检查 Gmail 中的链接。',
+  'ins.extTitle': 'ByeScam Inspector（Chrome 版）', 'ins.extSub': '免费 · 适用于 Gmail · 一分钟内完成安装',
+  'ins.download': '下载扩展程序（.zip）', 'ins.copy': '复制',
+  'ins.s1': '点击"下载扩展程序（.zip）"并解压文件夹。', 'ins.s2': '打开新标签页，前往',
+  'ins.s3': '打开右上角的"开发者模式"（Developer mode）。', 'ins.s4': '点击"加载已解压的扩展程序"（Load unpacked），选择解压后的文件夹，然后刷新 Gmail。',
+});

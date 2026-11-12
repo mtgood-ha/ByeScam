@@ -37,16 +37,13 @@
         <span class="nav-text" data-i18n="nav.verify">Is it really APU?</span>
       </a>
 
+      <a class="nav-item" href="#inspector" data-view-link="inspector" data-i18n-title="nav.url">
+        <svg viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/></svg>
+        <span class="nav-text" data-i18n="nav.url">URL &amp; Links Inspector</span>
+      </a>
       <a class="nav-item nav-danger" href="#freeze" data-view-link="freeze" data-i18n-title="nav.freeze">
         <svg viewBox="0 0 24 24"><path d="M12 2v20M4.9 4.9l14.2 14.2M2 12h20M4.9 19.1 19.1 4.9"/></svg>
         <span class="nav-text" data-i18n="nav.freeze">Emergency Freeze</span>
-      </a>
-
-      <p class="nav-label" data-i18n="nav.soon">Coming soon</p>
-      <a class="nav-item disabled" href="#" data-soon="url" data-i18n-title="nav.url">
-        <svg viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/></svg>
-        <span class="nav-text" data-i18n="nav.url">URL &amp; Links Inspector</span>
-        <span class="badge-soon" data-i18n="soon">Soon</span>
       </a>
 
       <p class="nav-label" data-i18n="nav.help">Help</p>
@@ -385,6 +382,34 @@
             <div class="card-head"><div><h2 id="h-recent" data-i18n="fz.recent">Recent campus emergency actions</h2><p class="muted" id="fzStats"></p></div></div>
             <ul class="fz-feed" id="fzFeed"></ul>
           </div>
+        </section>
+      </section>
+
+      <section class="view" data-view="inspector" aria-labelledby="h-ins" hidden>
+        <div class="page-head">
+          <div>
+            <h1 id="h-ins" data-i18n="nav.url">URL &amp; Links Inspector</h1>
+            <p class="muted" data-i18n="ins.sub">The ByeScam Chrome extension checks links in Gmail before you click them.</p>
+          </div>
+        </div>
+        <section class="card ext-card" aria-labelledby="h-ext">
+          <div class="ext-head">
+            <img src="extension/icon.png" alt="" width="56" height="56" class="ext-icon">
+            <div>
+              <h2 id="h-ext" data-i18n="ins.extTitle">ByeScam Inspector for Chrome</h2>
+              <p class="muted" data-i18n="ins.extSub">Free · Works in Gmail · Install in under a minute</p>
+            </div>
+            <a class="btn btn-primary btn-lg" href="download-extension.php" download="byescam-extension.zip" id="downloadExtension">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+              <span data-i18n="ins.download">Download Extension (.zip)</span>
+            </a>
+          </div>
+          <ol class="ext-steps">
+            <li><span class="ts-n">1</span><span data-i18n="ins.s1">Click Download Extension (.zip) and extract the folder.</span></li>
+            <li><span class="ts-n">2</span><span><span data-i18n="ins.s2">Open a new tab and go to</span> <code class="ext-code">chrome://extensions/</code> <button type="button" class="btn btn-ghost btn-sm" data-copy="chrome://extensions/" data-i18n="ins.copy">Copy</button></span></li>
+            <li><span class="ts-n">3</span><span data-i18n="ins.s3">Turn on Developer mode in the top-right corner.</span></li>
+            <li><span class="ts-n">4</span><span data-i18n="ins.s4">Click Load unpacked, select the extracted folder, and refresh Gmail.</span></li>
+          </ol>
         </section>
       </section>
 

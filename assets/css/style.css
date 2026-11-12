@@ -790,3 +790,15 @@ a.btn { text-decoration: none; }
 body.ul a.btn { text-decoration: none; }
 .ks-seg { display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }
 @media (max-width: 560px) { .ts-text { flex: 1 1 calc(100% - 40px); } }
+
+.ext-card { display: flex; flex-direction: column; gap: 18px; }
+.ext-head { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.ext-head > div { flex: 1; min-width: 200px; }
+.ext-head h2 { font-size: 17px; }
+.ext-icon { border-radius: 14px; object-fit: cover; box-shadow: 0 4px 12px rgba(15,27,51,.12); }
+.ext-steps { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.ext-steps li { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 12px; background: var(--bg); border: 1px solid var(--border); font-size: 14px; }
+.ext-steps li > span:last-child { display: inline-flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.ext-steps .ts-n { background: var(--primary); }
+.ext-code { font-family: ui-monospace, Consolas, monospace; font-size: 13px; background: #fff; border: 1px solid var(--border); border-radius: 6px; padding: 2px 8px; }
+@media (max-width: 560px) { .ext-head .btn { width: 100%; } }

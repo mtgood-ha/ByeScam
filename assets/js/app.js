@@ -146,7 +146,7 @@
     $$('[data-i18n-title]').forEach((el) => { el.title = t(el.dataset.i18nTitle); });
     $$('[data-i18n-aria]').forEach((el) => { el.setAttribute('aria-label', t(el.dataset.i18nAria)); });
     $$('[data-i18n-alt]').forEach((el) => { el.alt = t(el.dataset.i18nAlt); });
-    const vt = { overview: 'ov.title', map: 'mp.title', network: 'nw.title', verify: 'vf.title', freeze: 'fz.title' }[ui.view];
+    const vt = { overview: 'ov.title', map: 'mp.title', network: 'nw.title', verify: 'vf.title', freeze: 'fz.title', inspector: 'nav.url' }[ui.view];
     document.title = `${t(vt)} · ByeScam`;
     renderLocationOptions();
   }
@@ -181,7 +181,7 @@
 
   function setView(view, focus) {
     if (view === 'ask') { openChat(); view = ui.view || 'overview'; history.replaceState(null, '', '#' + view); }
-    if (!['overview', 'map', 'network', 'verify', 'freeze'].includes(view)) view = 'overview';
+    if (!['overview', 'map', 'network', 'verify', 'freeze', 'inspector'].includes(view)) view = 'overview';
     ui.view = view;
     $$('[data-view]').forEach((s) => (s.hidden = s.dataset.view !== view));
     $$('[data-view-link]').forEach((a) => {
