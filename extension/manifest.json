@@ -1,0 +1,24 @@
+{
+  "manifest_version": 3,
+  "name": "ByeScam Inspector",
+  "version": "1.0",
+  "description": "Live URL and scam inspector for APU students.",
+  "permissions": [
+    "activeTab"
+  ],
+  "host_permissions": [
+    "https://mail.google.com/*",
+    "http://localhost/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": ["https://mail.google.com/*"],
+      "css": ["content.css"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "icons": {
+    "128": "icon.png"
+  }
+}

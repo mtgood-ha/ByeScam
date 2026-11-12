@@ -46,29 +46,25 @@ function bs_ai_prompt(array $trend, array $members): string {
 
 function bs_ai_chat(array $messages, string $system = '', int $maxTokens = 900): array {
     $cfg = bs_config();
-    $body = ['model' => $cfg['anthropic_model'], 'max_tokens' => $maxTokens, 'messages' => $messages];
-    if ($system !== '') $body['system'] = $system;
-    $payload = json_encode($body);
-    $headers = ['content-type: application/json', 'x-api-key: ' . $cfg['anthropic_api_key'], 'anthropic-version: 2023-06-01'];
-
-    if (function_exists('curl_init')) {
-        $ch = curl_init('https://api.anthropic.com/v1/messages');
-        curl_setopt_array($ch, [CURLOPT_POST => true, CURLOPT_POSTFIELDS => $payload, CURLOPT_HTTPHEADER => $headers,
-                                CURLOPT_RETURNTRANSFER => true, CURLOPT_TIMEOUT => 25]);
-        $raw = curl_exec($ch);
-        $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
-    } else {
-        $ctx = stream_context_create(['http' => ['method' => 'POST', 'header' => implode("\r\n", $headers), 'content' => $payload, 'timeout' => 25, 'ignore_errors' => true]]);
-        $raw = @file_get_contents('https://api.anthropic.com/v1/messages', false, $ctx);
-        $code = 0;
-        if (isset($http_response_header[0]) && preg_match('/\s(\d{3})\s/', $http_response_header[0], $m)) $code = (int)$m[1];
+    $key = $cfg['gemini_api_key'] ?? '';
+    
+    $contents = [];
+    foreach ($messages as $m) {
+        $contents[] = ['role' => $m['role'] === 'assistant' ? 'model' : 'user', 'parts' => [['text' => $m['content']]]];
     }
+    
+    $body = ['contents' => $contents, 'generationConfig' => ['maxOutputTokens' => $maxTokens]];
+    if ($system !== '') $body['systemInstruction'] = ['parts' => [['text' => $system]]];
+    
+    $ch = curl_init("https://generativelanguage.googleapis.com/v1beta/models/" . ($cfg['gemini_model'] ?? 'gemini-1.5-flash') . ":generateContent?key=" . $key);
+    curl_setopt_array($ch, [CURLOPT_POST => true, CURLOPT_POSTFIELDS => json_encode($body), CURLOPT_HTTPHEADER => ['Content-Type: application/json'], CURLOPT_RETURNTRANSFER => true, CURLOPT_TIMEOUT => 25]);
+    $raw = curl_exec($ch);
+    $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+    
     if (!$raw || $code !== 200) return ['error' => 'AI request failed (HTTP ' . $code . ')'];
     $resp = json_decode($raw, true);
-    $text = '';
-    foreach ($resp['content'] ?? [] as $c) if (($c['type'] ?? '') === 'text') $text .= $c['text'];
-    return ['text' => $text];
+    return ['text' => $resp['candidates'][0]['content']['parts'][0]['text'] ?? ''];
 }
 
 function bs_ai_json(string $text): ?array {
