@@ -3,6 +3,7 @@ require_once __DIR__ . '/analyzer.php';
 require_once __DIR__ . '/trends.php';
 require_once __DIR__ . '/campus.php';
 require_once __DIR__ . '/ai.php';
+require_once __DIR__ . '/freeze.php';
 
 date_default_timezone_set(bs_config()['timezone']);
 

@@ -5,6 +5,7 @@
   const NET_API = 'api/network.php';
   const VERIFY_API = 'api/verify.php';
   const ASK_API = 'api/ask.php';
+  const FREEZE_API = 'api/freeze.php';
   const AI_API = 'api/ai.php';
   const POLL_MS = 20000;
   const NET_POLL_MS = 15000;
@@ -145,7 +146,7 @@
     $$('[data-i18n-title]').forEach((el) => { el.title = t(el.dataset.i18nTitle); });
     $$('[data-i18n-aria]').forEach((el) => { el.setAttribute('aria-label', t(el.dataset.i18nAria)); });
     $$('[data-i18n-alt]').forEach((el) => { el.alt = t(el.dataset.i18nAlt); });
-    const vt = { overview: 'ov.title', map: 'mp.title', network: 'nw.title', verify: 'vf.title' }[ui.view];
+    const vt = { overview: 'ov.title', map: 'mp.title', network: 'nw.title', verify: 'vf.title', freeze: 'fz.title' }[ui.view];
     document.title = `${t(vt)} · ByeScam`;
     renderLocationOptions();
   }
@@ -180,7 +181,7 @@
 
   function setView(view, focus) {
     if (view === 'ask') { openChat(); view = ui.view || 'overview'; history.replaceState(null, '', '#' + view); }
-    if (!['overview', 'map', 'network', 'verify'].includes(view)) view = 'overview';
+    if (!['overview', 'map', 'network', 'verify', 'freeze'].includes(view)) view = 'overview';
     ui.view = view;
     $$('[data-view]').forEach((s) => (s.hidden = s.dataset.view !== view));
     $$('[data-view-link]').forEach((a) => {
@@ -192,9 +193,10 @@
     applyI18n();
     renderCurrent();
     if (view === 'verify' && !directory) loadDirectory();
+    if (view === 'freeze') loadFreeze();
     if (focus) { window.scrollTo(0, 0); const h = $(`[data-view="${view}"] h1`); if (h) { h.setAttribute('tabindex', '-1'); h.focus({ preventScroll: true }); } }
   }
-  window.addEventListener('hashchange', () => setView(location.hash.slice(1), true));
+  window.addEventListener('hashchange', () => { if (window.matchMedia('(max-width: 560px)').matches && typeof closeChat === 'function') closeChat(); setView(location.hash.slice(1), true); });
 
   async function load() {
     try {
@@ -247,6 +249,7 @@
     else if (ui.view === 'map') renderMap();
     else if (ui.view === 'network') renderNetwork();
     else if (ui.view === 'verify') renderDirectory();
+    else if (ui.view === 'freeze') renderFreeze();
     if (!$('#chatPanel').hidden) renderAsk();
   }
 
@@ -868,6 +871,149 @@
   }
 
 
+  const FZ_SCENARIOS = {
+    paid: [{ key: 'fz.paid.1', go: 'fzBanks', btn: 'fz.goBanks' }, { key: 'fz.paid.2', tel: '997', btn: 'fz.call997' }, { key: 'fz.paid.3' }, { key: 'fz.paid.4' }],
+    creds: [{ key: 'fz.creds.1', go: 'fzLock', btn: 'fz.goLock' }, { key: 'fz.creds.2', go: 'fzBanks', btn: 'fz.goBanks' }, { key: 'fz.creds.3' }, { key: 'fz.creds.4', tel: '+60389925050', btn: 'fz.callApu' }],
+    click: [{ key: 'fz.click.1' }, { key: 'fz.click.2' }, { key: 'fz.click.3', go: 'fzLock', btn: 'fz.goLock' }, { key: 'fz.click.4', report: true, btn: 'report' }],
+  };
+  const freeze = { data: null, scenario: null, last: null };
+
+  async function loadFreeze() {
+    try { freeze.data = await api(`${FREEZE_API}?t=${Date.now()}`); if (ui.view === 'freeze') renderFreeze(); } catch (e) { return; }
+  }
+
+  async function copyText(text) {
+    let ok = false;
+    try { await navigator.clipboard.writeText(text); ok = true; } catch (e) {
+      const ta = document.createElement('textarea'); ta.value = text; ta.setAttribute('readonly', ''); ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta); ta.select();
+      try { ok = document.execCommand('copy'); } catch (e2) { ok = false; }
+      ta.remove();
+    }
+    toast(ok ? `${ICON.check}<span>${esc(t('fz.copied', { n: text }))}</span>` : `<span>${esc(text)}</span>`);
+  }
+
+  function renderTriage() {
+    $$('#triageTabs .triage-tab').forEach((b) => { const on = b.dataset.scenario === freeze.scenario; b.classList.toggle('active', on); b.setAttribute('aria-selected', on); });
+    const panel = $('#triagePanel');
+    if (!freeze.scenario) { panel.innerHTML = `<p class="muted triage-hint">${esc(t('fz.pick'))}</p>`; return; }
+    panel.innerHTML = `<ol class="triage-steps">${FZ_SCENARIOS[freeze.scenario].map((st, i) => `
+      <li><span class="ts-n">${i + 1}</span><span class="ts-text">${esc(t(st.key))}</span>
+        ${st.go ? `<button class="btn btn-sm btn-ghost" data-goto="${st.go}">${esc(t(st.btn))}${ICON.chevron}</button>` : ''}
+        ${st.tel ? `<a class="btn btn-sm btn-danger" href="tel:${st.tel}">${ICON.phone}${esc(t(st.btn))}</a>` : ''}
+        ${st.report ? `<button class="btn btn-sm btn-ghost" data-open-report>${esc(t(st.btn))}</button>` : ''}
+      </li>`).join('')}</ol>`;
+  }
+
+  function renderBanks() {
+    if (!freeze.data) return;
+    const q = ($('#bankSearch').value || '').trim().toLowerCase();
+    const list = freeze.data.directory.filter((b) => b.id !== 'nsrc' && (!q || `${b.name} ${b.display}`.toLowerCase().includes(q)));
+    $('#bankGrid').innerHTML = list.map((b) => {
+      const sentence = b.type === 'campus';
+      const steps = sentence ? t('fz.steps.' + b.id) : b.steps;
+      const hours = b.hours === '24/7' ? t('fz.h24') : b.id === 'apu' ? t('fz.hApu') : t('fz.hCheck');
+      return `
+      <article class="bank-card ${b.type}">
+        <div class="bank-top">
+          <div><b class="bank-name">${esc(b.name)}</b><span class="bank-meta"><span class="type-pill ${b.type}">${esc(t('fz.type.' + b.type))}</span><span class="hours ${b.hours === '24/7' ? 'h24' : ''}">${esc(hours)}</span></span></div>
+        </div>
+        <p class="bank-num mono">${esc(b.display)}</p>
+        <div class="bank-actions">
+          <a class="btn btn-sm btn-danger" href="tel:${esc(b.tel)}" aria-label="${esc(t('fz.callX', { name: b.name }))}">${ICON.phone}${esc(t('fz.call'))}</a>
+          <button class="btn btn-sm btn-ghost" data-copy="${esc(b.display.replace(/\s*\(.*\)$/, ''))}">${esc(t('fz.copy'))}</button>
+          ${b.email ? `<a class="btn btn-sm btn-ghost" href="mailto:${esc(b.email)}">${esc(b.email)}</a>` : ''}
+        </div>
+        <div class="ks">
+          <p class="ks-label">${esc(sentence ? t('fz.whatToDo') : t('fz.ks'))}</p>
+          ${sentence ? `<ol class="ks-list">${steps.map((x) => `<li>${esc(x)}</li>`).join('')}</ol>`
+            : `<div class="ks-path">${steps.map((x, i) => `<span class="ks-seg">${i ? '<span class="ks-arrow" aria-hidden="true">›</span>' : ''}<span class="ks-step">${esc(x)}</span></span>`).join('')}</div>`}
+        </div>
+      </article>`;
+    }).join('') || `<p class="empty">${esc(t('fz.noBank'))}</p>`;
+  }
+
+  const fzAction = (type) => t('fz.fd.' + (['apspace', 'email', 'moodle', 'wifi'].includes(type) ? type : 'other'));
+
+  function renderFreezeFeed() {
+    if (!freeze.data) return;
+    const st = freeze.data.stats;
+    $('#fzStats').textContent = t('fz.stats', { today: st.today, domains: st.domains });
+    $('#fzFeed').innerHTML = freeze.data.recent.map((f) => {
+      const z = zoneOf(f.location);
+      return `<li class="${freeze.last && freeze.last === f.id ? 'new' : ''}">
+        <span class="fz-dot" aria-hidden="true">${ICON.shieldOk}</span>
+        <div><p><b class="mono">${esc(f.anon)}</b> ${esc(fzAction(f.type))}${f.domain ? ` ${esc(t('fz.fd.andBlocked'))} <span class="domain-name">${esc(f.domain)}</span>` : ''}</p>
+        <small class="muted">${esc(timeAgo(f.created_at))}${z ? ` · ${esc(z.short)}` : ''} · ${esc(f.ref)}</small></div></li>`;
+    }).join('');
+  }
+
+  function renderFreeze() {
+    renderTriage();
+    renderBanks();
+    renderFreezeFeed();
+    const sel = $('#fzLocation');
+    if (sel && data.zones.length) {
+      const cur = sel.value;
+      sel.innerHTML = `<option value="">${esc(t('loc.none'))}</option>` + data.zones.map((z) => `<option value="${z.id}">${esc(z.name)}</option>`).join('');
+      sel.value = cur;
+    }
+    if (!freeze.data) loadFreeze();
+  }
+
+  function freezeResultHtml(r, url) {
+    const until = new Date(r.lock_until).toLocaleTimeString(locale(), { hour: '2-digit', minute: '2-digit' });
+    const dns = r.actions.find((a) => a.key === 'dns');
+    let dnsLine, dnsCls = 'done';
+    if (dns.done) dnsLine = t(dns.already ? 'fz.r.dnsAlready' : 'fz.r.dns', { domain: dns.domain });
+    else if (dns.official) { dnsLine = t('fz.r.dnsOfficial'); dnsCls = 'info'; }
+    else if (dns.given) { dnsLine = t('fz.r.dnsShared'); dnsCls = 'info'; }
+    else { dnsLine = t('fz.r.dnsNone'); dnsCls = 'skip'; }
+    const items = [
+      { cls: 'done', text: t('fz.r.sessions') },
+      { cls: 'done', text: t('fz.r.lock', { time: until }) },
+      { cls: dnsCls, text: dnsLine },
+      { cls: 'done', text: t('fz.r.ticket', { ref: r.ref }) },
+    ];
+    return `
+      <div class="freeze-result">
+        <div class="fr-head"><span class="fr-ico" aria-hidden="true">${ICON.shieldOk}</span><div><b>${esc(t('fz.r.title'))}</b><small class="muted">${esc(t('fz.r.sub', { anon: r.anon, ref: r.ref }))}</small></div></div>
+        <ul class="fr-list">${items.map((it, i) => `<li class="${it.cls}" style="--d:${i * 380}ms"><span class="fr-check" aria-hidden="true">${it.cls === 'done' ? ICON.check : it.cls === 'info' ? ICON.help : '–'}</span><span>${esc(it.text)}</span></li>`).join('')}</ul>
+        <div class="fr-note"><b>${esc(t('fz.r.stillTitle'))}</b><p>${esc(t('fz.r.still'))}</p></div>
+        <div class="fr-actions">
+          <button class="btn btn-primary btn-sm" data-fz-share="${esc(url)}">${ICON.layers} ${esc(t('fz.r.share'))}</button>
+          <a class="btn btn-ghost btn-sm" href="tel:+60389925050">${ICON.phone} ${esc(t('fz.callApu'))}</a>
+        </div>
+      </div>`;
+  }
+
+  async function submitFreeze(e) {
+    e.preventDefault();
+    const f = $('#freezeForm');
+    const body = Object.fromEntries(new FormData(f).entries());
+    const tp = (body.tp_number || '').replace(/\s+/g, '').toUpperCase();
+    const err = $('#tpError');
+    if (!/^TP\d{6}$/.test(tp) && !/^[A-Z]{2,4}\d{5,8}$/.test(tp)) {
+      err.textContent = t('fz.tpErr'); f.elements.tp_number.closest('.field').classList.add('invalid'); f.elements.tp_number.focus(); return;
+    }
+    err.textContent = ''; f.elements.tp_number.closest('.field').classList.remove('invalid');
+    const btn = $('#freezeBtn');
+    btn.disabled = true; btn.classList.add('busy');
+    try {
+      const r = await api(FREEZE_API, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...body, tp_number: tp }) });
+      freeze.last = r.event.id;
+      $('#freezeResult').innerHTML = freezeResultHtml(r, body.url_or_sender || '');
+      f.reset();
+      await loadFreeze();
+      loadNetwork();
+      $('#freezeResult').scrollIntoView({ behavior: settings.motion ? 'auto' : 'smooth', block: 'nearest' });
+    } catch (ex) {
+      err.textContent = t('fz.tpErr');
+    } finally {
+      btn.disabled = false; btn.classList.remove('busy');
+    }
+  }
+
   const ask = { started: false, topic: '', story: '', answers: {}, messages: [], log: [], quick: null, busy: false, done: false, mode: null };
 
   function openChat() {
@@ -924,7 +1070,7 @@
         <ul class="step-list">${steps.map((x) => `<li>${ICON.check}<span>${esc(x)}</span></li>`).join('')}</ul>
         ${v.level !== 'safe' ? `<p class="paid-line">${ICON.phone}<span>${esc(t('vd.paid'))}</span></p>` : ''}
         <div class="verdict-actions">
-          ${v.level !== 'safe' ? `<button class="btn btn-primary btn-sm" data-ask-action="report">${esc(t('vd.report'))}</button>` : ''}
+          ${v.level !== 'safe' ? `<button class="btn btn-primary btn-sm" data-ask-action="report">${esc(t('vd.report'))}</button><a class="btn btn-danger btn-sm" href="#freeze">${esc(t('nav.freeze'))}</a>` : ''}
           ${domain ? `<button class="btn btn-ghost btn-sm" data-ask-action="verify" data-domain="${esc(domain)}">${esc(t('vd.check'))}</button>` : ''}
           ${tr ? `<button class="btn btn-ghost btn-sm" data-trend="${tr.id}">${ICON.layers} ${esc(t('vd.trend'))}</button>` : ''}
         </div>
@@ -1003,11 +1149,15 @@
   }
 
   document.addEventListener('click', (e) => {
-    const el = e.target.closest('[data-trend],[data-report],[data-open-report],[data-close],[data-got-this],[data-filter-trend],[data-back],[data-soon],[data-zone],[data-zone-back],[data-open-settings],[data-example],[data-ask-topic],[data-ask-answer],[data-ask-option],[data-ask-action]');
+    const el = e.target.closest('[data-copy],[data-scenario],[data-goto],[data-fz-share],[data-trend],[data-report],[data-open-report],[data-close],[data-got-this],[data-filter-trend],[data-back],[data-soon],[data-zone],[data-zone-back],[data-open-settings],[data-example],[data-ask-topic],[data-ask-answer],[data-ask-option],[data-ask-action]');
     if (!el) {
       if (e.target.classList.contains('modal') || e.target.classList.contains('drawer')) closeAll();
       return;
     }
+    if (el.dataset.copy) { copyText(el.dataset.copy); return; }
+    if (el.dataset.scenario) { freeze.scenario = el.dataset.scenario; renderTriage(); return; }
+    if (el.dataset.goto) { const tgt = document.getElementById(el.dataset.goto); if (tgt) { tgt.scrollIntoView({ behavior: settings.motion ? 'auto' : 'smooth', block: 'start' }); const fi = tgt.querySelector('input'); if (fi) setTimeout(() => fi.focus({ preventScroll: true }), 400); } return; }
+    if (el.hasAttribute('data-fz-share')) { const u = el.dataset.fzShare; openReportForm({ message: t('fz.shareMsg') + (u ? ' ' + u : ''), url: /^https?:\/\//i.test(u) ? u : '', sender: u.includes('@') ? u : '', channel: u.includes('@') ? 'Email' : 'Other' }); return; }
     if (el.dataset.askTopic) {
       ask.topic = el.dataset.askTopic;
       ask.log.push({ who: 'user', labelKey: 'ask.topic.' + ask.topic });
@@ -1087,6 +1237,9 @@
   });
   $('#moreTrends').addEventListener('click', () => { ui.allTrends = true; renderTrends(); });
   $('#mapLayer').addEventListener('click', (e) => { const b = e.target.closest('button'); if (!b) return; ui.mapLayer = b.dataset.layer; renderMap(); });
+  $('#freezeForm').addEventListener('submit', submitFreeze);
+  $('#bankSearch').addEventListener('input', renderBanks);
+  $('#tpInput').addEventListener('input', () => { $('#tpError').textContent = ''; $('#tpInput').closest('.field').classList.remove('invalid'); });
   $('#chatForm').addEventListener('submit', (e) => { e.preventDefault(); const i = $('#chatInput'); askUserText(i.value); i.value = ''; });
   $('#chatInput').addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); $('#chatForm').requestSubmit(); } });
   $('#askRestart').addEventListener('click', askReset);

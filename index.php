@@ -37,15 +37,15 @@
         <span class="nav-text" data-i18n="nav.verify">Is it really APU?</span>
       </a>
 
+      <a class="nav-item nav-danger" href="#freeze" data-view-link="freeze" data-i18n-title="nav.freeze">
+        <svg viewBox="0 0 24 24"><path d="M12 2v20M4.9 4.9l14.2 14.2M2 12h20M4.9 19.1 19.1 4.9"/></svg>
+        <span class="nav-text" data-i18n="nav.freeze">Emergency Freeze</span>
+      </a>
+
       <p class="nav-label" data-i18n="nav.soon">Coming soon</p>
       <a class="nav-item disabled" href="#" data-soon="url" data-i18n-title="nav.url">
         <svg viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/></svg>
         <span class="nav-text" data-i18n="nav.url">URL &amp; Links Inspector</span>
-        <span class="badge-soon" data-i18n="soon">Soon</span>
-      </a>
-      <a class="nav-item disabled" href="#" data-soon="freeze" data-i18n-title="nav.freeze">
-        <svg viewBox="0 0 24 24"><path d="M12 2v20M4.9 4.9l14.2 14.2M2 12h20M4.9 19.1 19.1 4.9"/></svg>
-        <span class="nav-text" data-i18n="nav.freeze">Emergency Freeze</span>
         <span class="badge-soon" data-i18n="soon">Soon</span>
       </a>
 
@@ -296,6 +296,95 @@
         <section class="card">
           <div class="card-head"><div><h2 data-i18n="vf.dir">Official directory</h2><p class="muted" data-i18n="vf.dirSub">Real websites and email domains. Anything else claiming to be them is fake.</p></div></div>
           <div class="directory" id="directory"></div>
+        </section>
+      </section>
+
+      <section class="view" data-view="freeze" aria-labelledby="h-freeze" hidden>
+        <div class="page-head">
+          <div>
+            <h1 id="h-freeze" data-i18n="fz.title">Emergency Freeze</h1>
+            <p class="muted" data-i18n="fz.sub">Fell for a scam? The first minutes matter most. Pick what happened and follow the steps — stay calm, you can still stop it.</p>
+          </div>
+        </div>
+
+        <section class="card" aria-labelledby="h-triage">
+          <div class="card-head"><div><h2 id="h-triage" data-i18n="fz.triage">What just happened?</h2></div></div>
+          <div class="triage" role="tablist" id="triageTabs">
+            <button class="triage-tab" role="tab" data-scenario="paid" aria-selected="false"><span class="tri-ico red" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="13" rx="2"/><path d="M2 10h20M6 15h4"/></svg></span><b data-i18n="fz.sc.paid">I transferred money / paid a fee</b></button>
+            <button class="triage-tab" role="tab" data-scenario="creds" aria-selected="false"><span class="tri-ico amber" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg></span><b data-i18n="fz.sc.creds">I clicked a link &amp; entered my password / OTP</b></button>
+            <button class="triage-tab" role="tab" data-scenario="click" aria-selected="false"><span class="tri-ico blue" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/></svg></span><b data-i18n="fz.sc.click">I only clicked a suspicious link</b></button>
+          </div>
+          <div class="triage-panel" id="triagePanel" role="tabpanel" aria-live="polite"></div>
+        </section>
+
+        <section class="nsrc-banner" id="fzNsrc" aria-labelledby="h-nsrc">
+          <div class="nsrc-num" aria-hidden="true">997</div>
+          <div class="nsrc-text">
+            <h2 id="h-nsrc" data-i18n="fz.nsrc.title">Lost money? Call NSRC 997 now</h2>
+            <p data-i18n="fz.nsrc.text">The National Scam Response Centre works with the police, Bank Negara and your bank to trace and freeze stolen money. Open 24 hours — the call also counts as your police report.</p>
+          </div>
+          <div class="nsrc-actions">
+            <a class="btn btn-primary btn-call" href="tel:997"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg><span data-i18n="fz.call997">Call 997</span></a>
+            <button class="btn btn-ghost btn-light-ghost" data-copy="997"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><span data-i18n="fz.copy">Copy number</span></button>
+          </div>
+        </section>
+
+        <section class="card" id="fzBanks" aria-labelledby="h-banks">
+          <div class="card-head">
+            <div><h2 id="h-banks" data-i18n="fz.banks">Bank &amp; e-wallet Kill Switch</h2><p class="muted" data-i18n="fz.banksSub">Freeze your online banking yourself in seconds, then call the fraud hotline.</p></div>
+            <div class="search fz-search" role="search">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+              <label for="bankSearch" class="sr-only" data-i18n="fz.searchBank">Find your bank</label>
+              <input type="search" id="bankSearch" data-i18n-ph="fz.searchBank" placeholder="Find your bank…">
+            </div>
+          </div>
+          <div class="bank-grid" id="bankGrid"></div>
+          <p class="muted fz-disclaimer" data-i18n="fz.menuNote">App menus can change after updates. If you can't find the Kill Switch, call the hotline straight away.</p>
+        </section>
+
+        <section class="grid-2-1 fz-lower">
+          <div class="card lock-card" id="fzLock" aria-labelledby="h-lock">
+            <div class="card-head">
+              <div><h2 id="h-lock" class="with-badge"><span data-i18n="fz.lock.title">1-Click APU Account &amp; Wi-Fi Freeze</span> <span class="demo-badge" data-i18n="fz.demo">Demo simulation</span></h2>
+              <p class="muted" data-i18n="fz.lock.sub">Entered your APKey on a fake APSpace or Moodle page? Lock your sessions and block the link for everyone on campus Wi-Fi.</p></div>
+            </div>
+            <form id="freezeForm" novalidate>
+              <div class="row-2">
+                <label class="field">
+                  <span><span data-i18n="fz.tp">TP number</span> <em>*</em></span>
+                  <input name="tp_number" id="tpInput" placeholder="TP071234" autocomplete="off" maxlength="12" aria-describedby="tpHelp tpError" required>
+                  <small class="muted" id="tpHelp" data-i18n="fz.tpHelp">Only the first 4 characters are kept (e.g. TP07****).</small>
+                  <small class="error" id="tpError" role="alert"></small>
+                </label>
+                <label class="field">
+                  <span data-i18n="fz.what">What was compromised?</span>
+                  <select name="incident_type">
+                    <option value="apspace" data-i18n="fz.it.apspace">APSpace / APKey password</option>
+                    <option value="email" data-i18n="fz.it.email">Student email (Office 365)</option>
+                    <option value="moodle" data-i18n="fz.it.moodle">Moodle</option>
+                    <option value="wifi" data-i18n="fz.it.wifi">Clicked a link on campus Wi-Fi</option>
+                    <option value="other" data-i18n="fz.it.other">Something else</option>
+                  </select>
+                </label>
+              </div>
+              <div class="row-2">
+                <label class="field">
+                  <span data-i18n="fz.link">Link or sender you clicked (optional)</span>
+                  <input name="url_or_sender" placeholder="http://apspace-verify.xyz/login" autocomplete="off">
+                </label>
+                <label class="field">
+                  <span data-i18n="rp.where">Where were you on campus?</span>
+                  <select name="location" id="fzLocation"></select>
+                </label>
+              </div>
+              <button class="btn btn-danger btn-block btn-lg" type="submit" id="freezeBtn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2v20M4.9 4.9l14.2 14.2M2 12h20M4.9 19.1 19.1 4.9"/></svg><span data-i18n="fz.btn">1-Click Freeze My APU Account &amp; Block Link</span></button>
+            </form>
+            <div id="freezeResult" aria-live="polite"></div>
+          </div>
+          <div class="card" aria-labelledby="h-recent">
+            <div class="card-head"><div><h2 id="h-recent" data-i18n="fz.recent">Recent campus emergency actions</h2><p class="muted" id="fzStats"></p></div></div>
+            <ul class="fz-feed" id="fzFeed"></ul>
+          </div>
         </section>
       </section>
 
