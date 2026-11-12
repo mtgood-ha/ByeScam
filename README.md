@@ -53,3 +53,8 @@ navigation, screen-reader labels and live regions.
   domains, free email providers and link shorteners are never blocked). Only the first 4 characters of the TP
   number are stored (e.g. `TP07****`). Bank hotlines and Kill Switch steps were checked against the banks'
   own pages in November 2026 — re-check them before a real launch, since app menus change.
+
+## AI assistance
+Parts of this project, including code, UI design and documentation, were developed with the help of
+[Claude](https://claude.ai) by Anthropic as an AI coding assistant. The team reviewed, tested and
+adapted all of the output.
