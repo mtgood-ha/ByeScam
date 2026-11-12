@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Live Campus Scan · ByeScam</title>
   <link rel="icon" href="assets/img/logo.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="stylesheet" href="assets/css/style.css?v=<?= filemtime(__DIR__ . '/assets/css/style.css') ?>">
 </head>
 <body>
 <a class="skip-link" href="#content" data-i18n="skip">Skip to main content</a>
@@ -565,7 +565,7 @@
 
 <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
-<script src="assets/js/i18n.js"></script>
-<script src="assets/js/app.js"></script>
+<script src="assets/js/i18n.js?v=<?= filemtime(__DIR__ . '/assets/js/i18n.js') ?>"></script>
+<script src="assets/js/app.js?v=<?= filemtime(__DIR__ . '/assets/js/app.js') ?>"></script>
 </body>
 </html>
