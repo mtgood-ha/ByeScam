@@ -19,6 +19,7 @@ No database needed (PHP 7.4+, the curl extension is used for AI summaries).
 | **Ask before you pay** `#ask` | Chat: a student describes the situation, ByeScam asks follow-up questions and gives a verdict |
 | **Campus heatmap** `#map` | APU campus map with hotspots per building — scam reports or blocked Wi-Fi lookups |
 | **Wi-Fi scam radar** `#network` | Simulated campus DNS filter: blocklist built from reports, live block log, hourly chart |
+| **Emergency Freeze** `#freeze` | "What just happened?" triage, 1-tap NSRC 997, bank & e-wallet Kill Switch directory, simulated 1-click APU account & Wi-Fi freeze, recent campus actions |
 | **Is it really APU?** `#verify` | Checks an email, link or phone number against the official directory and student reports |
 
 ## AI summaries (optional)
@@ -46,3 +47,9 @@ navigation, screen-reader labels and live regions.
   live without real network hardware. A real deployment would feed the blocklist to the
   campus resolver (e.g. a DNS RPZ zone) and read its query logs.
 - The official directory in `includes/campus.php` should be confirmed with APU IT before launch.
+- **Emergency Freeze** (`includes/freeze.php`, `api/freeze.php`): the APU account lock and helpdesk ticket are
+  **simulated** — the UI labels them "Demo simulation" and still tells students to change their APKey password and
+  contact APU IT. Domains submitted in a freeze are added to the real ByeScam Wi-Fi blocklist (official APU
+  domains, free email providers and link shorteners are never blocked). Only the first 4 characters of the TP
+  number are stored (e.g. `TP07****`). Bank hotlines and Kill Switch steps were checked against the banks'
+  own pages in November 2026 — re-check them before a real launch, since app menus change.

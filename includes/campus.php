@@ -70,6 +70,12 @@ function bs_blocklist(array $reports): array {
         $list[$d]['risk'] = max($list[$d]['risk'], $r['risk']);
         if ($r['created_at'] < $list[$d]['added_at']) $list[$d]['added_at'] = $r['created_at'];
     }
+    if (function_exists('bs_freeze_blocklist_domains')) {
+        foreach (bs_freeze_blocklist_domains() as $d => $at) {
+            if (isset($list[$d])) { $list[$d]['source'] = 'reports+freeze'; continue; }
+            $list[$d] = ['domain' => $d, 'category' => 'phishing', 'reports' => 0, 'added_at' => $at, 'risk' => 90, 'source' => 'freeze'];
+        }
+    }
     return $list;
 }
 
