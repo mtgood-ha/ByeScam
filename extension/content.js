@@ -9,23 +9,24 @@ function bs_injectUI() {
 
     const root = document.createElement('div');
     root.id = 'byescam-ext-root';
+    // Inside bs_injectUI() in content.js
     root.innerHTML = `
-        <div class="bs-card" id="bs-card">
-            <div class="bs-header" id="bs-drag">
-                <img src="${chrome.runtime.getURL('icon.png')}" class="bs-icon" alt="ByeScam">
-                <div class="bs-title-wrap">
-                    <span class="bs-dot" id="bs-status-dot"></span>
-                    <p class="bs-title" id="bs-status-text">Ready to scan</p>
-                </div>
-                <div class="bs-toggle" id="bs-toggle">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
-                </div>
+    <div class="bs-card" id="bs-card">
+        <div class="bs-header" id="bs-drag">
+            <img src="${chrome.runtime.getURL('icon.png')}" class="bs-icon" alt="ByeScam">
+            <div class="bs-title-wrap">
+                <span class="bs-dot" id="bs-status-dot"></span>
+                <p class="bs-title" id="bs-status-text">Ready to scan</p>
             </div>
-            <div class="bs-body" id="bs-details">
-                <div class="bs-safe">Open an email to analyze potential threats.</div>
+            <div class="bs-toggle" id="bs-toggle">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
             </div>
         </div>
-    `;
+        <div class="bs-body" id="bs-details">
+            <div class="bs-safe">Open an email to analyze potential threats.</div>
+        </div>
+    </div>
+`   ;
     document.body.appendChild(root);
     bs_initListeners();
 }
