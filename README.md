@@ -56,5 +56,5 @@ navigation, screen-reader labels and live regions.
 
 ## AI assistance
 Parts of this project, including code, UI design and documentation, were developed with the help of
-[Claude](https://claude.ai) by Anthropic as an AI coding assistant. The team reviewed, tested and
-adapted all of the output.
+[Claude](https://claude.ai) by Anthropic and [Gemini](https://gemini.google.com) by Google as AI
+assistants. The team reviewed, tested and adapted all of the output.
