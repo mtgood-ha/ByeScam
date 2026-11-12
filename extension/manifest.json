@@ -18,6 +18,12 @@
       "run_at": "document_idle"
     }
   ],
+  "web_accessible_resources": [
+    {
+      "resources": ["icon.png"],
+      "matches": ["https://mail.google.com/*"]
+    }
+  ],
   "icons": {
     "128": "icon.png"
   }
