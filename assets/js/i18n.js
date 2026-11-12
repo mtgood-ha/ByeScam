@@ -2,7 +2,7 @@ window.I18N = {
   en: {
     skip: 'Skip to main content',
     'nav.scan': 'Live Campus Scan', 'nav.overview': 'Overview', 'nav.map': 'Campus heatmap', 'nav.network': 'Wi-Fi scam radar',
-    'nav.verify': 'Is it really APU?', 'nav.soon': 'Coming soon', 'nav.url': 'URL & Links Inspector', 'nav.freeze': 'Emergency Freeze',
+    'nav.verify': 'Is it really APU?', 'nav.soon': 'Coming soon', 'nav.url': 'Email Inspector', 'nav.freeze': 'Emergency Freeze',
     'nav.help': 'Help', 'nav.tips': 'Safety tips', 'nav.a11y': 'Language & accessibility', soon: 'Soon',
     'side.title': 'Spotted a scam?', 'side.text': 'Share it so ByeScam can warn other students.',
     report: 'Report a scam', collapse: 'Collapse', expand: 'Expand', menu: 'Toggle menu', search: 'Search',
@@ -101,7 +101,7 @@ window.I18N = {
   ms: {
     skip: 'Langkau ke kandungan utama',
     'nav.scan': 'Imbasan Kampus Langsung', 'nav.overview': 'Gambaran keseluruhan', 'nav.map': 'Peta haba kampus', 'nav.network': 'Radar penipuan Wi-Fi',
-    'nav.verify': 'Betul-betul APU?', 'nav.soon': 'Akan datang', 'nav.url': 'Pemeriksa URL & Pautan', 'nav.freeze': 'Pembekuan Kecemasan',
+    'nav.verify': 'Betul-betul APU?', 'nav.soon': 'Akan datang', 'nav.url': 'Pemeriksa E-mel', 'nav.freeze': 'Pembekuan Kecemasan',
     'nav.help': 'Bantuan', 'nav.tips': 'Tip keselamatan', 'nav.a11y': 'Bahasa & kebolehcapaian', soon: 'Akan datang',
     'side.title': 'Nampak penipuan?', 'side.text': 'Kongsikan supaya ByeScam boleh memberi amaran kepada pelajar lain.',
     report: 'Laporkan penipuan', collapse: 'Kecilkan', expand: 'Besarkan', menu: 'Buka/tutup menu', search: 'Cari',
@@ -204,7 +204,7 @@ window.I18N = {
   zh: {
     skip: '跳到主要内容',
     'nav.scan': '校园实时扫描', 'nav.overview': '总览', 'nav.map': '校园热力图', 'nav.network': 'Wi-Fi 诈骗雷达',
-    'nav.verify': '真的是 APU 吗？', 'nav.soon': '即将推出', 'nav.url': '网址与链接检查', 'nav.freeze': '紧急冻结',
+    'nav.verify': '真的是 APU 吗？', 'nav.soon': '即将推出', 'nav.url': '邮件检查器', 'nav.freeze': '紧急冻结',
     'nav.help': '帮助', 'nav.tips': '安全提示', 'nav.a11y': '语言与无障碍', soon: '即将推出',
     'side.title': '发现诈骗？', 'side.text': '分享出来，让 ByeScam 提醒其他同学。',
     report: '举报诈骗', collapse: '收起', expand: '展开', menu: '切换菜单', search: '搜索',

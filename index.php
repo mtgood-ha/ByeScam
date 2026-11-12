@@ -39,7 +39,7 @@
 
       <a class="nav-item" href="#inspector" data-view-link="inspector" data-i18n-title="nav.url">
         <svg viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/></svg>
-        <span class="nav-text" data-i18n="nav.url">URL &amp; Links Inspector</span>
+        <span class="nav-text" data-i18n="nav.url">Email Inspector</span>
       </a>
       <a class="nav-item nav-danger" href="#freeze" data-view-link="freeze" data-i18n-title="nav.freeze">
         <svg viewBox="0 0 24 24"><path d="M12 2v20M4.9 4.9l14.2 14.2M2 12h20M4.9 19.1 19.1 4.9"/></svg>
@@ -388,7 +388,7 @@
       <section class="view" data-view="inspector" aria-labelledby="h-ins" hidden>
         <div class="page-head">
           <div>
-            <h1 id="h-ins" data-i18n="nav.url">URL &amp; Links Inspector</h1>
+            <h1 id="h-ins" data-i18n="nav.url">Email Inspector</h1>
             <p class="muted" data-i18n="ins.sub">The ByeScam Chrome extension checks links in Gmail before you click them.</p>
           </div>
         </div>
