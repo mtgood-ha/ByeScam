@@ -1,6 +1,5 @@
 const BS_CONFIG = {
-    apiEndpoint: 'http://localhost/ByeScam/api/scan.php',
-    scanInterval: 2000
+  apiEndpoint: 'https://knight-surf-pressing-cool.trycloudflare.com/ByeScam/api/scan.php'
 };
 
 // 1. Inject UI Structure if it doesn't already exist
